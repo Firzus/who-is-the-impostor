@@ -130,7 +130,7 @@ function LobbyPage() {
               {copied ? "Code copié !" : "Connecté"}
             </span>
           </div>
-          <div className="h-px w-24 bg-gradient-to-r from-transparent via-border to-transparent" />
+          <div className="h-px w-24 bg-linear-to-r from-transparent via-border to-transparent" />
         </div>
 
         <Card ref={playersRef} className="opacity-0">

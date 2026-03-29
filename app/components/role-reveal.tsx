@@ -156,7 +156,7 @@ export function RoleReveal({ role, playerName, onConfirm }: RoleRevealProps) {
           >
             {/* Card back (visible first) */}
             <div
-              className="absolute inset-0 flex flex-col items-center justify-center rounded-[var(--radius)] glass glass-border"
+              className="absolute inset-0 flex flex-col items-center justify-center rounded-(--radius) glass glass-border"
               style={{ backfaceVisibility: "hidden" }}
             >
               <div className="mb-3 font-display text-5xl text-gold-gradient">?</div>
@@ -169,9 +169,9 @@ export function RoleReveal({ role, playerName, onConfirm }: RoleRevealProps) {
             {/* Card front (role) */}
             <div
               ref={backRef}
-              className={`absolute inset-0 flex flex-col items-center justify-center rounded-[var(--radius)] border-2 ${isImpostor
-                ? "border-impostor/40 bg-gradient-to-b from-black/80 to-impostor/10 glow-impostor"
-                : "border-aventurier/40 bg-gradient-to-b from-black/80 to-aventurier/10 glow-aventurier"
+              className={`absolute inset-0 flex flex-col items-center justify-center rounded-(--radius) border-2 ${isImpostor
+                ? "border-impostor/40 bg-linear-to-b from-black/80 to-impostor/10 glow-impostor"
+                : "border-aventurier/40 bg-linear-to-b from-black/80 to-aventurier/10 glow-aventurier"
                 }`}
               style={{ backfaceVisibility: "hidden" }}
             >
