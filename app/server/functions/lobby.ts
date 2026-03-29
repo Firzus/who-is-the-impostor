@@ -1,5 +1,3 @@
-import "../cleanup";
-
 import { createServerFn } from "@tanstack/react-start";
 import { db } from "../db";
 import { lobbies, players } from "../db/schema";

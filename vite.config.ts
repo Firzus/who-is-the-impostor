@@ -21,6 +21,9 @@ export default defineConfig({
         routesDirectory: "routes",
         generatedRouteTree: "routeTree.gen.ts",
       },
+      server: {
+        entry: "./server.ts",
+      },
     }),
     react(),
     tailwindcss(),

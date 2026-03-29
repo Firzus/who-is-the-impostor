@@ -60,8 +60,8 @@ export function CreateLobbyDialog({ open, onOpenChange }: CreateLobbyDialogProps
         </DialogHeader>
 
         <div className="mt-2 space-y-5">
-          <div className="space-y-2">
-            <Label htmlFor={nameId}>Pseudo</Label>
+          <div className="flex flex-col gap-3">
+            <Label htmlFor={nameId} className="text-base font-semibold">Pseudo</Label>
             <Input
               id={nameId}
               placeholder="Ton pseudo..."
