@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import {
   Dialog,
@@ -9,6 +9,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { joinLobby } from "@/server/functions/lobby";
 import { useLobbyStore } from "@/stores/lobby-store";
 
@@ -18,6 +20,8 @@ interface JoinLobbyDialogProps {
 }
 
 export function JoinLobbyDialog({ open, onOpenChange }: JoinLobbyDialogProps) {
+  const codeId = useId();
+  const nameId = useId();
   const [code, setCode] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
@@ -55,7 +59,7 @@ export function JoinLobbyDialog({ open, onOpenChange }: JoinLobbyDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent onClose={() => onOpenChange(false)}>
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Rejoindre une partie</DialogTitle>
           <DialogDescription>
@@ -64,9 +68,11 @@ export function JoinLobbyDialog({ open, onOpenChange }: JoinLobbyDialogProps) {
         </DialogHeader>
 
         <div className="mt-4 space-y-4">
-          <div>
+          <div className="space-y-2">
+            <Label htmlFor={codeId}>Code du lobby</Label>
             <Input
-              placeholder="Code du lobby (6 caractères)"
+              id={codeId}
+              placeholder="6 caractères"
               value={code}
               onChange={(e) => setCode(e.target.value.toUpperCase())}
               maxLength={6}
@@ -75,8 +81,10 @@ export function JoinLobbyDialog({ open, onOpenChange }: JoinLobbyDialogProps) {
             />
           </div>
 
-          <div>
+          <div className="space-y-2">
+            <Label htmlFor={nameId}>Pseudo</Label>
             <Input
+              id={nameId}
               placeholder="Ton pseudo..."
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -86,7 +94,9 @@ export function JoinLobbyDialog({ open, onOpenChange }: JoinLobbyDialogProps) {
           </div>
 
           {error && (
-            <p className="text-sm text-destructive">{error}</p>
+            <Alert variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
           )}
 
           <Button

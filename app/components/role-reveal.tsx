@@ -2,6 +2,7 @@ import { type MouseEvent, useRef, useEffect, useState } from "react";
 import gsap from "gsap";
 import { Sword, Skull } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 import {
   createHolographicBackground,
   getCardHoverState,
@@ -117,7 +118,7 @@ export function RoleReveal({ role, playerName, onConfirm }: RoleRevealProps) {
 
   return (
     <div className="flex flex-col items-center gap-8">
-      <p className="text-sm text-muted-foreground">{playerName}</p>
+      <CardDescription className="text-center text-sm">{playerName}</CardDescription>
 
       <div
         className="relative h-80 w-56 cursor-pointer"
@@ -132,23 +133,21 @@ export function RoleReveal({ role, playerName, onConfirm }: RoleRevealProps) {
           style={{ transformStyle: "preserve-3d" }}
         >
           {/* Card back (visible first) */}
-          <div
-            className="absolute inset-0 flex flex-col items-center justify-center rounded-xl border border-border bg-card"
+          <Card
+            className="absolute inset-0 flex flex-col items-center justify-center border shadow-none"
             style={{ backfaceVisibility: "hidden" }}
           >
             <div className="mb-4 text-4xl">?</div>
-            <p className="text-sm text-muted-foreground">
-              Clique pour révéler
-            </p>
-            <div className="absolute inset-2 rounded-lg border border-border/30" />
-          </div>
+            <CardDescription className="text-center">Clique pour révéler</CardDescription>
+            <div className="pointer-events-none absolute inset-2 rounded-lg border border-border/30" />
+          </Card>
 
           {/* Card front (role) */}
-          <div
+          <Card
             ref={backRef}
-            className={`absolute inset-0 flex flex-col items-center justify-center rounded-xl border-2 ${isImpostor
-                ? "border-impostor/50 bg-gradient-to-b from-card to-impostor/10"
-                : "border-aventurier/50 bg-gradient-to-b from-card to-aventurier/10"
+            className={`absolute inset-0 flex flex-col items-center justify-center border-2 shadow-none ${isImpostor
+              ? "border-impostor/50 bg-linear-to-b from-card to-impostor/10"
+              : "border-aventurier/50 bg-linear-to-b from-card to-aventurier/10"
               }`}
             style={{ backfaceVisibility: "hidden" }}
           >
@@ -164,38 +163,38 @@ export function RoleReveal({ role, playerName, onConfirm }: RoleRevealProps) {
                 <Sword className="mb-4 h-16 w-16 text-aventurier" />
               )}
 
-              <h2
+              <CardTitle
                 className={`mb-2 font-mono text-2xl font-bold uppercase tracking-wider ${isImpostor ? "text-impostor" : "text-aventurier"
                   }`}
               >
                 {role}
-              </h2>
+              </CardTitle>
 
-              <p className="text-sm text-muted-foreground">
+              <CardDescription className="text-center">
                 {isImpostor
                   ? "Sabote le donjon en secret..."
                   : "Termine le donjon avec ta team !"}
-              </p>
+              </CardDescription>
             </div>
-          </div>
+          </Card>
         </div>
       </div>
 
       {revealed && (
         <div className="flex flex-col items-center gap-4">
-          <p className="text-center text-sm italic text-muted-foreground">
+          <CardDescription className="text-center text-sm italic">
             {isImpostor
               ? "Fais perdre la team sans te faire repérer..."
               : "Méfie-toi, un imposteur rôde parmi vous."}
-          </p>
+          </CardDescription>
 
           <Button onClick={onConfirm} size="lg" className="px-10">
-            C'est parti
+            C&apos;est parti
           </Button>
 
-          <p className="text-xs text-muted-foreground/60 font-mono">
+          <CardDescription className="text-center text-xs font-mono text-muted-foreground/60">
             Le donjon vous attend...
-          </p>
+          </CardDescription>
         </div>
       )}
     </div>

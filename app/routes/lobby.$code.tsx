@@ -7,8 +7,9 @@ import {
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { LobbyCard } from "@/components/lobby-card";
 import { useLobbyPolling } from "@/lib/ws-client";
 import { useLobbyStore } from "@/stores/lobby-store";
@@ -101,25 +102,30 @@ function LobbyPage() {
   return (
     <div className="flex min-h-screen items-center justify-center px-4 py-8">
       <div className="w-full max-w-lg space-y-6">
-        <div ref={codeRef} className="text-center opacity-0">
-          <p className="mb-2 text-sm text-muted-foreground">Code du lobby</p>
-          <div className="flex items-center justify-center gap-3">
-            <span className="font-mono text-4xl font-bold tracking-[0.3em] text-foreground">
-              {code}
-            </span>
-            <button
-              onClick={copyCode}
-              className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground cursor-pointer"
-              title="Copier le code"
-            >
-              <Copy className="h-5 w-5" />
-            </button>
-          </div>
-          <div className="mt-3 flex items-center justify-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-aventurier" />
-            <span className="text-xs text-muted-foreground">Connecté</span>
-          </div>
-        </div>
+        <Card ref={codeRef} className="opacity-0 shadow-sm">
+          <CardContent className="space-y-3 pt-6 text-center">
+            <CardDescription className="text-sm">Code du lobby</CardDescription>
+            <div className="flex items-center justify-center gap-3">
+              <span className="font-mono text-4xl font-bold tracking-[0.3em] text-foreground">
+                {code}
+              </span>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={copyCode}
+                title="Copier le code"
+                aria-label="Copier le code"
+              >
+                <Copy className="h-5 w-5" />
+              </Button>
+            </div>
+            <div className="flex items-center justify-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-aventurier" aria-hidden />
+              <span className="text-xs text-muted-foreground">Connecté</span>
+            </div>
+          </CardContent>
+        </Card>
 
         <Card ref={playersRef} className="opacity-0">
           <CardHeader className="flex flex-row items-center justify-between">
@@ -171,13 +177,17 @@ function LobbyPage() {
         )}
 
         {!isHost && store.myPlayerId && (
-          <p className="text-center text-sm text-muted-foreground">
-            En attente que l'hôte lance la partie...
-          </p>
+          <Alert>
+            <AlertDescription className="text-center">
+              En attente que l&apos;hôte lance la partie...
+            </AlertDescription>
+          </Alert>
         )}
 
         {store.error && (
-          <p className="text-center text-sm text-destructive">{store.error}</p>
+          <Alert variant="destructive">
+            <AlertDescription className="text-center">{store.error}</AlertDescription>
+          </Alert>
         )}
       </div>
     </div>

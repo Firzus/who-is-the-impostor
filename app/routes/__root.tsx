@@ -7,15 +7,18 @@ import {
 } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { ShaderBackground } from "@/components/shader-background";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import appCss from "@/styles/app.css?url";
 
 function RootNotFound() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-2 px-4 text-center">
-      <p className="text-lg font-medium text-foreground">Page introuvable</p>
-      <p className="text-sm text-muted-foreground">
-        Cette adresse ne correspond à aucune route.
-      </p>
+    <div className="flex min-h-screen flex-col items-center justify-center px-4 py-8">
+      <Card className="w-full max-w-md border-dashed shadow-sm">
+        <CardHeader className="text-center">
+          <CardTitle className="text-lg">Page introuvable</CardTitle>
+          <CardDescription>Cette adresse ne correspond à aucune route.</CardDescription>
+        </CardHeader>
+      </Card>
     </div>
   );
 }

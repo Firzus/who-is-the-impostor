@@ -5,3 +5,6 @@ dist/
 .env
 .env.local
 *.local
+
+# Cursor
+.cursor/debug-*.log
