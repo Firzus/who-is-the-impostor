@@ -14,11 +14,12 @@ interface LobbyShareProps {
   code: string;
 }
 
-function generateQrSvg(url: string): string {
+function generateQrDataUrl(url: string): string {
   const qr = qrcode(0, "M");
   qr.addData(url);
   qr.make();
-  return qr.createSvgTag({ scalable: true, margin: 0 });
+  const svg = qr.createSvgTag({ scalable: true, margin: 0 });
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 }
 
 export function LobbyShare({ code }: LobbyShareProps) {
@@ -48,7 +49,7 @@ export function LobbyShare({ code }: LobbyShareProps) {
     setTimeout(() => setLinkCopied(false), 2000);
   };
 
-  const qrSvg = generateQrSvg(lobbyUrl);
+  const qrDataUrl = generateQrDataUrl(lobbyUrl);
 
   return (
     <>
@@ -77,9 +78,10 @@ export function LobbyShare({ code }: LobbyShareProps) {
           </DialogHeader>
 
           <div className="flex flex-col items-center gap-4">
-            <div
-              className="w-40 h-40 bg-white p-2 [&>svg]:w-full [&>svg]:h-full"
-              dangerouslySetInnerHTML={{ __html: qrSvg }}
+            <img
+              src={qrDataUrl}
+              alt={`QR code pour rejoindre le lobby ${code}`}
+              className="w-40 h-40 bg-white p-2"
             />
 
             <div className="w-full space-y-2">
