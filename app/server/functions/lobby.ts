@@ -1,7 +1,9 @@
+import "../cleanup";
+
 import { createServerFn } from "@tanstack/react-start";
 import { db } from "../db";
 import { lobbies, players } from "../db/schema";
-import { eq, and } from "drizzle-orm";
+import { and, count, eq } from "drizzle-orm";
 import { generateLobbyCode } from "@/lib/utils";
 import {
   createLobbySchema,
@@ -48,6 +50,10 @@ export const joinLobby = createServerFn({ method: "POST" })
 
     if (!lobby) {
       throw new Error("Lobby introuvable");
+    }
+
+    if (lobby.status === "finished") {
+      throw new Error("Cette partie est terminée");
     }
 
     if (lobby.status !== "waiting") {
@@ -104,6 +110,37 @@ export const getPlayerRole = createServerFn({ method: "POST" })
       throw new Error("Joueur introuvable");
     }
 
+    if (player.role != null) {
+      await db
+        .update(players)
+        .set({ hasSeenRole: true })
+        .where(eq(players.id, playerId));
+
+      const [lobbyRow] = await db
+        .select()
+        .from(lobbies)
+        .where(eq(lobbies.id, player.lobbyId));
+
+      if (lobbyRow?.status === "roles_assigned") {
+        const [unseenRow] = await db
+          .select({ unseen: count() })
+          .from(players)
+          .where(
+            and(
+              eq(players.lobbyId, player.lobbyId),
+              eq(players.hasSeenRole, false)
+            )
+          );
+
+        if (Number(unseenRow.unseen) === 0) {
+          await db
+            .update(lobbies)
+            .set({ status: "finished" })
+            .where(eq(lobbies.id, player.lobbyId));
+        }
+      }
+    }
+
     return { role: player.role, name: player.name };
   });
 
@@ -136,7 +173,7 @@ export const assignRoles = createServerFn({ method: "POST" })
       const role = i === impostorIndex ? "imposteur" : "aventurier";
       await db
         .update(players)
-        .set({ role })
+        .set({ role, hasSeenRole: false })
         .where(eq(players.id, lobbyPlayers[i].id));
     }
 

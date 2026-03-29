@@ -3,7 +3,6 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import gsap from "gsap";
 import { RoleReveal } from "@/components/role-reveal";
 import { RevealConfirmation } from "@/components/reveal-confirmation";
-import { Card, CardContent } from "@/components/ui/card";
 import { useLobbyStore } from "@/stores/lobby-store";
 import { getPlayerRole } from "@/server/functions/lobby";
 import { Loader2 } from "lucide-react";
@@ -74,12 +73,12 @@ function RevealPage() {
   if (!store.myRole) {
     return (
       <div className="flex min-h-screen items-center justify-center px-4">
-        <Card className="w-full max-w-sm shadow-sm">
-          <CardContent className="flex items-center gap-3 pt-6 pb-6">
-            <Loader2 className="h-5 w-5 shrink-0 animate-spin text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">Chargement de ton rôle...</span>
-          </CardContent>
-        </Card>
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-6 w-6 animate-spin text-primary/40" />
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground/70">
+            Chargement de ton rôle...
+          </p>
+        </div>
       </div>
     );
   }

@@ -13,9 +13,9 @@ import appCss from "@/styles/app.css?url";
 function RootNotFound() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-4 py-8">
-      <Card className="w-full max-w-md border-dashed shadow-sm">
+      <Card className="glass glass-border w-full max-w-md border-dashed">
         <CardHeader className="text-center">
-          <CardTitle className="text-lg">Page introuvable</CardTitle>
+          <CardTitle className="font-display text-lg">Page introuvable</CardTitle>
           <CardDescription>Cette adresse ne correspond à aucune route.</CardDescription>
         </CardHeader>
       </Card>
@@ -29,7 +29,7 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Who Is The Impostor" },
+      { title: "Qui est l'imposteur" },
       { name: "description", content: "Mini-jeu communautaire Dofus — Trouve l'imposteur avant qu'il ne sabote le donjon !" },
     ],
     links: [
@@ -38,7 +38,7 @@ export const Route = createRootRoute({
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap",
       },
     ],
   }),

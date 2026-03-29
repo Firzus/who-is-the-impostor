@@ -67,16 +67,16 @@ export function JoinLobbyDialog({ open, onOpenChange }: JoinLobbyDialogProps) {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="mt-4 space-y-4">
+        <div className="mt-2 space-y-5">
           <div className="space-y-2">
             <Label htmlFor={codeId}>Code du lobby</Label>
             <Input
               id={codeId}
-              placeholder="6 caractères"
+              placeholder="ABC123"
               value={code}
               onChange={(e) => setCode(e.target.value.toUpperCase())}
               maxLength={6}
-              className="font-mono tracking-widest text-center text-lg"
+              className="font-mono text-center text-lg tracking-[0.35em]"
               autoFocus
             />
           </div>

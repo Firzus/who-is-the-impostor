@@ -25,6 +25,7 @@ function LobbyPage() {
   const navigate = useNavigate();
   const store = useLobbyStore();
   const [assigning, setAssigning] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const revealMatch = useMatch({
     from: "/lobby/$code/reveal",
@@ -59,17 +60,19 @@ function LobbyPage() {
     tl.fromTo(
       codeEl,
       { opacity: 0, y: -20 },
-      { opacity: 1, y: 0, duration: 0.6 }
+      { opacity: 1, y: 0, duration: 0.7 }
     ).fromTo(
       playersEl,
       { opacity: 0, y: 20 },
-      { opacity: 1, y: 0, duration: 0.6 },
+      { opacity: 1, y: 0, duration: 0.7 },
       "-=0.3"
     );
   }, [isRevealRoute]);
 
   const copyCode = async () => {
     await navigator.clipboard.writeText(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const handleAssignRoles = async () => {
@@ -82,7 +85,6 @@ function LobbyPage() {
           requesterId: store.myPlayerId,
         },
       });
-      // Use getState() after await so we merge onto latest lobby (avoids races with in-flight poll).
       const { lobby, setLobby, setRolesAssigned } = useLobbyStore.getState();
       if (lobby) {
         setLobby({ ...lobby, status: "roles_assigned" });
@@ -101,36 +103,40 @@ function LobbyPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center px-4 py-8">
-      <div className="w-full max-w-lg space-y-6">
-        <Card ref={codeRef} className="opacity-0 shadow-sm">
-          <CardContent className="space-y-3 pt-6 text-center">
-            <CardDescription className="text-sm">Code du lobby</CardDescription>
-            <div className="flex items-center justify-center gap-3">
-              <span className="font-mono text-4xl font-bold tracking-[0.3em] text-foreground">
-                {code}
-              </span>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                onClick={copyCode}
-                title="Copier le code"
-                aria-label="Copier le code"
-              >
-                <Copy className="h-5 w-5" />
-              </Button>
-            </div>
-            <div className="flex items-center justify-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-aventurier" aria-hidden />
-              <span className="text-xs text-muted-foreground">Connecté</span>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="w-full max-w-lg space-y-5">
+        <div ref={codeRef} className="flex flex-col items-center gap-4 opacity-0">
+          <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground/50">
+            Code du lobby
+          </p>
+          <div className="flex items-center gap-3">
+            <span className="text-gold-gradient font-mono text-5xl font-bold tracking-[0.4em]">
+              {code}
+            </span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={copyCode}
+              title="Copier le code"
+              aria-label="Copier le code"
+              className="text-muted-foreground hover:text-primary"
+            >
+              <Copy className="h-4 w-4" />
+            </Button>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="h-1.5 w-1.5 rounded-full bg-aventurier animate-pulse" aria-hidden />
+            <span className="text-xs text-muted-foreground">
+              {copied ? "Code copié !" : "Connecté"}
+            </span>
+          </div>
+          <div className="h-px w-24 bg-gradient-to-r from-transparent via-border to-transparent" />
+        </div>
 
         <Card ref={playersRef} className="opacity-0">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="flex items-center gap-2 text-base">
-              <Users className="h-4 w-4" />
+              <Users className="h-4 w-4 text-primary/60" />
               Joueurs
             </CardTitle>
             <Badge variant="secondary">
@@ -154,7 +160,7 @@ function LobbyPage() {
             )}
 
             {store.players.length > 0 && store.players.length < 3 && (
-              <p className="pt-2 text-center text-xs text-muted-foreground">
+              <p className="pt-3 text-center text-xs text-muted-foreground/60">
                 Il faut au moins 3 joueurs pour commencer
               </p>
             )}
@@ -178,7 +184,7 @@ function LobbyPage() {
 
         {!isHost && store.myPlayerId && (
           <Alert>
-            <AlertDescription className="text-center">
+            <AlertDescription className="text-center font-display italic">
               En attente que l&apos;hôte lance la partie...
             </AlertDescription>
           </Alert>

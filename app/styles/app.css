@@ -1,28 +1,29 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #000000;
-  --color-foreground: #fafafa;
-  --color-card: #0a0a0a;
-  --color-card-foreground: #fafafa;
-  --color-border: #1f1f1f;
-  --color-primary: #ffffff;
-  --color-primary-foreground: #0a0a0a;
-  --color-secondary: #1a1a1a;
-  --color-secondary-foreground: #fafafa;
-  --color-muted: #171717;
-  --color-muted-foreground: #a1a1a1;
-  --color-accent: #666666;
-  --color-accent-foreground: #fafafa;
-  --color-destructive: #ff4444;
-  --color-destructive-foreground: #fafafa;
-  --color-ring: #333333;
-  --color-input: #1f1f1f;
-  --color-impostor: #ff4444;
-  --color-aventurier: #22c55e;
-  --radius: 0.5rem;
-  --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "Geist Mono", ui-monospace, monospace;
+  --color-background: #050505;
+  --color-foreground: #e8e0d4;
+  --color-card: rgba(12, 10, 8, 0.75);
+  --color-card-foreground: #e8e0d4;
+  --color-border: rgba(184, 148, 86, 0.12);
+  --color-primary: #c9a84c;
+  --color-primary-foreground: #0a0806;
+  --color-secondary: rgba(184, 148, 86, 0.08);
+  --color-secondary-foreground: #d4c5a0;
+  --color-muted: rgba(184, 148, 86, 0.06);
+  --color-muted-foreground: #a89a80;
+  --color-accent: rgba(184, 148, 86, 0.15);
+  --color-accent-foreground: #d4c5a0;
+  --color-destructive: #d44040;
+  --color-destructive-foreground: #fef2f2;
+  --color-ring: rgba(184, 148, 86, 0.25);
+  --color-input: rgba(184, 148, 86, 0.1);
+  --color-impostor: #e04040;
+  --color-aventurier: #4aba6a;
+  --radius: 0.625rem;
+  --font-display: "Crimson Text", "Georgia", serif;
+  --font-sans: "Outfit", "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
 }
 
 @layer base {
@@ -36,5 +37,114 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background: rgba(201, 168, 76, 0.3);
+    color: #fff;
+  }
+}
+
+@layer utilities {
+  .glass {
+    background: rgba(12, 10, 8, 0.6);
+    backdrop-filter: blur(24px) saturate(1.4);
+    -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  }
+
+  .glass-border {
+    border: 1px solid rgba(184, 148, 86, 0.12);
+    box-shadow:
+      inset 0 1px 0 rgba(184, 148, 86, 0.06),
+      0 0 0 1px rgba(0, 0, 0, 0.3);
+  }
+
+  .glow-gold {
+    box-shadow:
+      0 0 20px rgba(201, 168, 76, 0.08),
+      0 0 60px rgba(201, 168, 76, 0.04);
+  }
+
+  .glow-impostor {
+    box-shadow:
+      0 0 20px rgba(224, 64, 64, 0.15),
+      0 0 60px rgba(224, 64, 64, 0.06);
+  }
+
+  .glow-aventurier {
+    box-shadow:
+      0 0 20px rgba(74, 186, 106, 0.15),
+      0 0 60px rgba(74, 186, 106, 0.06);
+  }
+
+  .text-gold-gradient {
+    background: linear-gradient(
+      135deg,
+      #c9a84c 0%,
+      #e8d5a0 45%,
+      #c9a84c 55%,
+      #a08030 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .shimmer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      transparent 40%,
+      rgba(201, 168, 76, 0.05) 45%,
+      rgba(201, 168, 76, 0.1) 50%,
+      rgba(201, 168, 76, 0.05) 55%,
+      transparent 60%
+    );
+    animation: shimmer 4s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0%,
+    100% {
+      transform: translateX(-100%);
+    }
+    50% {
+      transform: translateX(100%);
+    }
+  }
+
+  .fade-up {
+    animation: fadeUp 0.6s ease-out both;
+  }
+
+  @keyframes fadeUp {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .stagger-1 {
+    animation-delay: 0.1s;
+  }
+  .stagger-2 {
+    animation-delay: 0.2s;
+  }
+  .stagger-3 {
+    animation-delay: 0.35s;
+  }
+  .stagger-4 {
+    animation-delay: 0.5s;
   }
 }

@@ -33,6 +33,7 @@ export const players = pgTable("players", {
   role: roleEnum("role"),
   isHost: boolean("is_host").default(false).notNull(),
   joinedAt: timestamp("joined_at").defaultNow().notNull(),
+  hasSeenRole: boolean("has_seen_role").default(false).notNull(),
 });
 
 export type Lobby = typeof lobbies.$inferSelect;

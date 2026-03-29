@@ -2,12 +2,12 @@ import { type MouseEvent, useRef, useEffect, useState } from "react";
 import gsap from "gsap";
 import { Sword, Skull } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 import {
   createHolographicBackground,
   getCardHoverState,
   isRoleCardHoverEnabled,
 } from "@/lib/role-card-effects";
+import { burstParticles } from "@/lib/reveal-particles";
 
 interface RoleRevealProps {
   role: string;
@@ -19,6 +19,8 @@ export function RoleReveal({ role, playerName, onConfirm }: RoleRevealProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const backRef = useRef<HTMLDivElement>(null);
   const holographicRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const particleCleanup = useRef<(() => void) | null>(null);
   const [revealed, setRevealed] = useState(false);
   const [hoverEnabled, setHoverEnabled] = useState(false);
 
@@ -28,6 +30,9 @@ export function RoleReveal({ role, playerName, onConfirm }: RoleRevealProps) {
     const back = backRef.current;
     if (!back) return;
     gsap.set(back, { rotateY: 180 });
+    return () => {
+      particleCleanup.current?.();
+    };
   }, []);
 
   const handleReveal = () => {
@@ -45,6 +50,15 @@ export function RoleReveal({ role, playerName, onConfirm }: RoleRevealProps) {
       rotateY: 180,
       duration: 0.8,
       ease: "power2.inOut",
+      onStart: () => {
+        const canvas = canvasRef.current;
+        if (canvas) {
+          setTimeout(() => {
+            particleCleanup.current?.();
+            particleCleanup.current = burstParticles(canvas, role);
+          }, 350);
+        }
+      },
       onComplete: () => setHoverEnabled(true),
     }).fromTo(
       roleContent,
@@ -80,7 +94,7 @@ export function RoleReveal({ role, playerName, onConfirm }: RoleRevealProps) {
     });
 
     gsap.to(holographic, {
-      opacity: 0.9,
+      opacity: 0.5,
       duration: 0.2,
       ease: "power2.out",
       background: createHolographicBackground({
@@ -118,83 +132,94 @@ export function RoleReveal({ role, playerName, onConfirm }: RoleRevealProps) {
 
   return (
     <div className="flex flex-col items-center gap-8">
-      <CardDescription className="text-center text-sm">{playerName}</CardDescription>
+      <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-muted-foreground/80">
+        {playerName}
+      </p>
 
-      <div
-        className="relative h-80 w-56 cursor-pointer"
-        style={{ perspective: "1000px" }}
-        onClick={handleReveal}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-      >
+      <div className="relative">
+        <canvas
+          ref={canvasRef}
+          className="pointer-events-none absolute -inset-24 z-10"
+          style={{ width: "calc(100% + 12rem)", height: "calc(100% + 12rem)" }}
+        />
         <div
-          ref={cardRef}
-          className="relative h-full w-full transition-shadow"
-          style={{ transformStyle: "preserve-3d" }}
+          className="relative h-80 w-56 cursor-pointer"
+          style={{ perspective: "1000px" }}
+          onClick={handleReveal}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
         >
-          {/* Card back (visible first) */}
-          <Card
-            className="absolute inset-0 flex flex-col items-center justify-center border shadow-none"
-            style={{ backfaceVisibility: "hidden" }}
+          <div
+            ref={cardRef}
+            className="relative h-full w-full transition-shadow"
+            style={{ transformStyle: "preserve-3d" }}
           >
-            <div className="mb-4 text-4xl">?</div>
-            <CardDescription className="text-center">Clique pour révéler</CardDescription>
-            <div className="pointer-events-none absolute inset-2 rounded-lg border border-border/30" />
-          </Card>
-
-          {/* Card front (role) */}
-          <Card
-            ref={backRef}
-            className={`absolute inset-0 flex flex-col items-center justify-center border-2 shadow-none ${isImpostor
-              ? "border-impostor/50 bg-linear-to-b from-card to-impostor/10"
-              : "border-aventurier/50 bg-linear-to-b from-card to-aventurier/10"
-              }`}
-            style={{ backfaceVisibility: "hidden" }}
-          >
+            {/* Card back (visible first) */}
             <div
-              ref={holographicRef}
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 rounded-[inherit] opacity-0 mix-blend-screen"
-            />
-            <div className="role-content flex flex-col items-center opacity-0">
-              {isImpostor ? (
-                <Skull className="mb-4 h-16 w-16 text-impostor" />
-              ) : (
-                <Sword className="mb-4 h-16 w-16 text-aventurier" />
-              )}
-
-              <CardTitle
-                className={`mb-2 font-mono text-2xl font-bold uppercase tracking-wider ${isImpostor ? "text-impostor" : "text-aventurier"
-                  }`}
-              >
-                {role}
-              </CardTitle>
-
-              <CardDescription className="text-center">
-                {isImpostor
-                  ? "Sabote le donjon en secret..."
-                  : "Termine le donjon avec ta team !"}
-              </CardDescription>
+              className="absolute inset-0 flex flex-col items-center justify-center rounded-[var(--radius)] glass glass-border"
+              style={{ backfaceVisibility: "hidden" }}
+            >
+              <div className="mb-3 font-display text-5xl text-gold-gradient">?</div>
+              <p className="text-center text-xs text-muted-foreground">
+                Clique pour révéler
+              </p>
+              <div className="pointer-events-none absolute inset-2 rounded-lg border border-primary/8" />
             </div>
-          </Card>
+
+            {/* Card front (role) */}
+            <div
+              ref={backRef}
+              className={`absolute inset-0 flex flex-col items-center justify-center rounded-[var(--radius)] border-2 ${isImpostor
+                ? "border-impostor/40 bg-gradient-to-b from-black/80 to-impostor/10 glow-impostor"
+                : "border-aventurier/40 bg-gradient-to-b from-black/80 to-aventurier/10 glow-aventurier"
+                }`}
+              style={{ backfaceVisibility: "hidden" }}
+            >
+              <div
+                ref={holographicRef}
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 rounded-[inherit] opacity-0 mix-blend-screen"
+              />
+              <div className="role-content flex flex-col items-center opacity-0">
+                {isImpostor ? (
+                  <Skull className="mb-4 h-16 w-16 text-impostor" />
+                ) : (
+                  <Sword className="mb-4 h-16 w-16 text-aventurier" />
+                )}
+
+                <h2
+                  className={`mb-2 font-display text-2xl font-bold uppercase tracking-wider ${isImpostor ? "text-impostor" : "text-aventurier"
+                    }`}
+                >
+                  {role}
+                </h2>
+
+                <p className="text-center text-sm text-muted-foreground/90">
+                  {isImpostor
+                    ? "Sabote le donjon en secret..."
+                    : "Termine le donjon avec ta team !"}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
       {revealed && (
-        <div className="flex flex-col items-center gap-4">
-          <CardDescription className="text-center text-sm italic">
+        <div className="flex flex-col items-center gap-5">
+          <p className="max-w-xs text-center font-display text-sm italic text-muted-foreground/90">
             {isImpostor
               ? "Fais perdre la team sans te faire repérer..."
               : "Méfie-toi, un imposteur rôde parmi vous."}
-          </CardDescription>
+          </p>
 
-          <Button onClick={onConfirm} size="lg" className="px-10">
+          <Button onClick={onConfirm} size="lg" className="px-10 uppercase tracking-[0.12em]">
             C&apos;est parti
           </Button>
 
-          <CardDescription className="text-center text-xs font-mono text-muted-foreground/60">
+          <p className="text-center font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground/60">
             Le donjon vous attend...
-          </CardDescription>
+          </p>
         </div>
       )}
     </div>

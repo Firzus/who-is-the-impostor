@@ -1,0 +1,1 @@
+ALTER TABLE "players" ADD COLUMN "has_seen_role" boolean DEFAULT false NOT NULL;

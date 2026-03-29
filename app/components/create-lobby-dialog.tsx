@@ -59,7 +59,7 @@ export function CreateLobbyDialog({ open, onOpenChange }: CreateLobbyDialogProps
           </DialogDescription>
         </DialogHeader>
 
-        <div className="mt-4 space-y-4">
+        <div className="mt-2 space-y-5">
           <div className="space-y-2">
             <Label htmlFor={nameId}>Pseudo</Label>
             <Input
