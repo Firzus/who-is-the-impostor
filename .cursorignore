@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+
+# Build & output
+.output/
+dist/
+
+# Vite / Vinxi cache
+.vinxi/
+.vite/
+
+# TanStack generated / cache
+.tanstack/
+app/routeTree.gen.ts
+
+# Drizzle migrations metadata
+drizzle/meta/
+
+# Environment & secrets
+.env
+.env.local
+*.local
+
+# Lock files
+pnpm-lock.yaml
+
+# Docker volumes data (if mounted locally)
+pgdata/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE / editor
+.idea/
+*.swp
+*.swo
+
+# Test coverage
+coverage/
