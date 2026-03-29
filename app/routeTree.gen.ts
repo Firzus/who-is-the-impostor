@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LobbyCodeRouteImport } from './routes/lobby.$code'
+import { Route as ApiHealthRouteImport } from './routes/api.health'
 import { Route as LobbyCodeRevealRouteImport } from './routes/lobby.$code.reveal'
 
 const IndexRoute = IndexRouteImport.update({
@@ -23,6 +24,11 @@ const LobbyCodeRoute = LobbyCodeRouteImport.update({
   path: '/lobby/$code',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiHealthRoute = ApiHealthRouteImport.update({
+  id: '/api/health',
+  path: '/api/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LobbyCodeRevealRoute = LobbyCodeRevealRouteImport.update({
   id: '/reveal',
   path: '/reveal',
@@ -31,30 +37,34 @@ const LobbyCodeRevealRoute = LobbyCodeRevealRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api/health': typeof ApiHealthRoute
   '/lobby/$code': typeof LobbyCodeRouteWithChildren
   '/lobby/$code/reveal': typeof LobbyCodeRevealRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api/health': typeof ApiHealthRoute
   '/lobby/$code': typeof LobbyCodeRouteWithChildren
   '/lobby/$code/reveal': typeof LobbyCodeRevealRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api/health': typeof ApiHealthRoute
   '/lobby/$code': typeof LobbyCodeRouteWithChildren
   '/lobby/$code/reveal': typeof LobbyCodeRevealRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/lobby/$code' | '/lobby/$code/reveal'
+  fullPaths: '/' | '/api/health' | '/lobby/$code' | '/lobby/$code/reveal'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/lobby/$code' | '/lobby/$code/reveal'
-  id: '__root__' | '/' | '/lobby/$code' | '/lobby/$code/reveal'
+  to: '/' | '/api/health' | '/lobby/$code' | '/lobby/$code/reveal'
+  id: '__root__' | '/' | '/api/health' | '/lobby/$code' | '/lobby/$code/reveal'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiHealthRoute: typeof ApiHealthRoute
   LobbyCodeRoute: typeof LobbyCodeRouteWithChildren
 }
 
@@ -72,6 +82,13 @@ declare module '@tanstack/react-router' {
       path: '/lobby/$code'
       fullPath: '/lobby/$code'
       preLoaderRoute: typeof LobbyCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/health': {
+      id: '/api/health'
+      path: '/api/health'
+      fullPath: '/api/health'
+      preLoaderRoute: typeof ApiHealthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lobby/$code/reveal': {
@@ -98,6 +115,7 @@ const LobbyCodeRouteWithChildren = LobbyCodeRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiHealthRoute: ApiHealthRoute,
   LobbyCodeRoute: LobbyCodeRouteWithChildren,
 }
 export const routeTree = rootRouteImport
