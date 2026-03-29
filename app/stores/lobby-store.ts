@@ -1,5 +1,27 @@
 import { create } from "zustand";
 
+const PLAYER_ID_KEY = "who-impostor-player-id";
+
+function persistPlayerId(id: string) {
+  try {
+    sessionStorage.setItem(PLAYER_ID_KEY, id);
+  } catch { }
+}
+
+function restorePlayerId(): string | null {
+  try {
+    return sessionStorage.getItem(PLAYER_ID_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function clearPlayerId() {
+  try {
+    sessionStorage.removeItem(PLAYER_ID_KEY);
+  } catch { }
+}
+
 export interface LobbyPlayer {
   id: string;
   name: string;
@@ -33,7 +55,7 @@ export interface LobbyState {
 const initialState = {
   lobby: null,
   players: [],
-  myPlayerId: null,
+  myPlayerId: restorePlayerId(),
   myRole: null,
   rolesAssigned: false,
   error: null,
@@ -54,9 +76,15 @@ export const useLobbyStore = create<LobbyState>((set) => ({
     set((state) => ({
       players: state.players.filter((p) => p.id !== playerId),
     })),
-  setMyPlayerId: (id) => set({ myPlayerId: id }),
+  setMyPlayerId: (id) => {
+    persistPlayerId(id);
+    set({ myPlayerId: id });
+  },
   setMyRole: (role) => set({ myRole: role }),
   setRolesAssigned: (assigned) => set({ rolesAssigned: assigned }),
   setError: (error) => set({ error }),
-  reset: () => set(initialState),
+  reset: () => {
+    clearPlayerId();
+    set({ ...initialState, myPlayerId: null });
+  },
 }));

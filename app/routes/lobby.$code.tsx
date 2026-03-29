@@ -42,7 +42,7 @@ function LobbyPage() {
     (p) => p.id === store.myPlayerId
   )?.isHost;
 
-  const canAssignRoles = isHost && store.players.length >= 3 && !assigning;
+  const canAssignRoles = isHost && store.players.length >= 4 && !assigning;
 
   useEffect(() => {
     if (!isRevealRoute && store.rolesAssigned) {
@@ -159,9 +159,9 @@ function LobbyPage() {
               ))
             )}
 
-            {store.players.length > 0 && store.players.length < 3 && (
+            {store.players.length > 0 && store.players.length < 4 && (
               <p className="pt-3 text-center text-xs text-muted-foreground/60">
-                Il faut au moins 3 joueurs pour commencer
+                Il faut au moins 4 joueurs pour commencer
               </p>
             )}
           </CardContent>
@@ -176,8 +176,8 @@ function LobbyPage() {
           >
             {assigning
               ? "Attribution en cours..."
-              : store.players.length < 3
-                ? `En attente de joueurs (${store.players.length}/3 min.)`
+              : store.players.length < 4
+                ? `En attente de joueurs (${store.players.length}/4 min.)`
                 : "Lancer l'attribution des rôles"}
           </Button>
         )}

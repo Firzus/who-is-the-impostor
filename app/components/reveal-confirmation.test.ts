@@ -8,7 +8,7 @@ describe("RevealConfirmation", () => {
     const markup = renderToStaticMarkup(React.createElement(RevealConfirmation));
 
     expect(markup).toContain("Bonne chance, aventurier.");
-    expect(markup).toContain("Rendez-vous sur Dofus pour le donjon !");
+    expect(markup).toContain("Rendez-vous en jeu !");
     expect(markup).toContain("Tu peux fermer cette page.");
     expect(markup).toContain("text-2xl");
     expect(markup).toContain("text-base");

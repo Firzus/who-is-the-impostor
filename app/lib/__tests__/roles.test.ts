@@ -7,8 +7,8 @@ interface MockPlayer {
 }
 
 function assignRolesToPlayers(players: MockPlayer[]): MockPlayer[] {
-  if (players.length < 3) {
-    throw new Error("Il faut au moins 3 joueurs pour lancer la partie");
+  if (players.length < 4) {
+    throw new Error("Il faut au moins 4 joueurs pour lancer la partie");
   }
 
   const impostorIndex = Math.floor(Math.random() * players.length);
@@ -20,21 +20,23 @@ function assignRolesToPlayers(players: MockPlayer[]): MockPlayer[] {
 }
 
 describe("assignRolesToPlayers", () => {
-  it("throws if fewer than 3 players", () => {
-    const players: MockPlayer[] = [
-      { id: "1", name: "Alice", role: null },
-      { id: "2", name: "Bob", role: null },
-    ];
-    expect(() => assignRolesToPlayers(players)).toThrow(
-      "Il faut au moins 3 joueurs"
-    );
-  });
-
-  it("assigns exactly 1 imposteur with 3 players", () => {
+  it("throws if fewer than 4 players", () => {
     const players: MockPlayer[] = [
       { id: "1", name: "Alice", role: null },
       { id: "2", name: "Bob", role: null },
       { id: "3", name: "Charlie", role: null },
+    ];
+    expect(() => assignRolesToPlayers(players)).toThrow(
+      "Il faut au moins 4 joueurs"
+    );
+  });
+
+  it("assigns exactly 1 imposteur with 4 players", () => {
+    const players: MockPlayer[] = [
+      { id: "1", name: "Alice", role: null },
+      { id: "2", name: "Bob", role: null },
+      { id: "3", name: "Charlie", role: null },
+      { id: "4", name: "Diana", role: null },
     ];
 
     const assigned = assignRolesToPlayers(players);
@@ -43,7 +45,7 @@ describe("assignRolesToPlayers", () => {
     const aventuriers = assigned.filter((p) => p.role === "aventurier");
 
     expect(impostors).toHaveLength(1);
-    expect(aventuriers).toHaveLength(2);
+    expect(aventuriers).toHaveLength(3);
   });
 
   it("assigns exactly 1 imposteur with many players", () => {

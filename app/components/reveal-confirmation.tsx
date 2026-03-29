@@ -8,7 +8,7 @@ export function RevealConfirmation() {
           Bonne chance, aventurier.
         </CardTitle>
         <p className="font-display text-base italic text-muted-foreground">
-          Rendez-vous sur Dofus pour le donjon !
+          Rendez-vous en jeu !
         </p>
       </CardHeader>
       <CardContent className="pt-0 text-center">

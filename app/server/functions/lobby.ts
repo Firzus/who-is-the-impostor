@@ -161,8 +161,8 @@ export const assignRoles = createServerFn({ method: "POST" })
       .from(players)
       .where(eq(players.lobbyId, data.lobbyId));
 
-    if (lobbyPlayers.length < 3) {
-      throw new Error("Il faut au moins 3 joueurs pour lancer la partie");
+    if (lobbyPlayers.length < 4) {
+      throw new Error("Il faut au moins 4 joueurs pour lancer la partie");
     }
 
     const impostorIndex = Math.floor(Math.random() * lobbyPlayers.length);
