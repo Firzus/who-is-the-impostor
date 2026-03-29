@@ -1,22 +1,16 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
 export function RevealConfirmation() {
   return (
-    <Card className="max-w-md border-primary/10 glow-gold">
-      <CardHeader className="space-y-3 text-center">
-        <CardTitle className="font-display text-2xl font-semibold text-gold-gradient">
-          Bonne chance, aventurier.
-        </CardTitle>
-        <p className="font-display text-base italic text-muted-foreground">
-          Rendez-vous en jeu !
-        </p>
-      </CardHeader>
-      <CardContent className="pt-0 text-center">
-        <div className="mx-auto mb-3 h-px w-16 bg-linear-to-r from-transparent via-primary/20 to-transparent" />
-        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground/60">
-          Tu peux fermer cette page.
-        </p>
-      </CardContent>
-    </Card>
+    <div className="max-w-sm text-center">
+      <p className="font-display text-2xl text-foreground mb-2">
+        Bonne chance, aventurier.
+      </p>
+      <p className="text-sm text-muted-foreground mb-4">
+        Rendez-vous en jeu !
+      </p>
+      <div className="h-px w-16 mx-auto bg-gradient-to-r from-transparent via-border to-transparent mb-4" />
+      <p className="text-xs text-muted-foreground/50">
+        Tu peux fermer cette page.
+      </p>
+    </div>
   );
 }

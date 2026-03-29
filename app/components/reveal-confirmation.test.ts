@@ -4,14 +4,13 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { RevealConfirmation } from "@/components/reveal-confirmation";
 
 describe("RevealConfirmation", () => {
-  it("renders the upgraded post-confirmation copy and text sizes", () => {
+  it("renders the post-confirmation copy", () => {
     const markup = renderToStaticMarkup(React.createElement(RevealConfirmation));
 
     expect(markup).toContain("Bonne chance, aventurier.");
     expect(markup).toContain("Rendez-vous en jeu !");
     expect(markup).toContain("Tu peux fermer cette page.");
     expect(markup).toContain("text-2xl");
-    expect(markup).toContain("text-base");
-    expect(markup).toContain("text-[10px]");
+    expect(markup).toContain("text-sm");
   });
 });

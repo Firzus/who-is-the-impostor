@@ -42,8 +42,8 @@ function RevealPage() {
     if (!el) return;
     gsap.fromTo(
       el,
-      { opacity: 0 },
-      { opacity: 1, duration: 0.8, ease: "power2.out" }
+      { opacity: 0, scale: 0.96 },
+      { opacity: 1, scale: 1, duration: 0.8, ease: "power2.out" }
     );
   }, [store.myRole]);
 
@@ -64,9 +64,9 @@ function RevealPage() {
     const el = containerRef.current;
     if (!el) return;
     gsap.to(el, {
-      opacity: 0.5,
+      opacity: 0.3,
       filter: "blur(4px)",
-      duration: 0.6,
+      duration: 0.5,
     });
   };
 
@@ -74,8 +74,8 @@ function RevealPage() {
     return (
       <div className="flex min-h-screen items-center justify-center px-4">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-6 w-6 animate-spin text-primary/40" />
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground/70">
+          <Loader2 className="h-5 w-5 animate-spin text-primary/60" />
+          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
             Chargement de ton rôle...
           </p>
         </div>

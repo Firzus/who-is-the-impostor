@@ -15,7 +15,7 @@ describe("getCardHoverState", () => {
 
     expect(state.rotateX).toBe(0);
     expect(state.rotateY).toBe(0);
-    expect(state.scale).toBe(1.05);
+    expect(state.scale).toBe(1.06);
   });
 
   it("tilts the card within the configured limits near the edges", () => {
@@ -27,8 +27,8 @@ describe("getCardHoverState", () => {
 
     expect(state.rotateX).toBeGreaterThan(0);
     expect(state.rotateY).toBeGreaterThan(0);
-    expect(state.rotateX).toBeLessThanOrEqual(12);
-    expect(state.rotateY).toBeLessThanOrEqual(12);
+    expect(state.rotateX).toBeLessThanOrEqual(14);
+    expect(state.rotateY).toBeLessThanOrEqual(14);
   });
 });
 

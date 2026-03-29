@@ -1,5 +1,5 @@
-const MAX_TILT = 12;
-const HOVER_SCALE = 1.05;
+const MAX_TILT = 14;
+const HOVER_SCALE = 1.06;
 
 interface CardRect {
   left: number;
@@ -51,7 +51,7 @@ export function getCardHoverState(input: CardPointerInput) {
 export function createHolographicBackground(input: CardPointerInput) {
   const { glareX, glareY } = getCardHoverState(input);
 
-  return `radial-gradient(circle at ${glareX}% ${glareY}%, rgba(255,255,255,0.22), rgba(255,255,255,0.08) 22%, rgba(255,255,255,0) 50%), linear-gradient(135deg, rgba(80, 220, 255, 0.1), rgba(160, 120, 255, 0.12), rgba(255, 120, 180, 0.1), rgba(255, 220, 120, 0.12))`;
+  return `radial-gradient(circle at ${glareX}% ${glareY}%, rgba(52,211,153,0.2), rgba(16,185,129,0.08) 25%, rgba(52,211,153,0) 50%), linear-gradient(135deg, rgba(52, 211, 153, 0.08), rgba(16, 185, 129, 0.06), rgba(110, 231, 183, 0.04), rgba(6, 150, 100, 0.06))`;
 }
 
 export function isRoleCardHoverEnabled({
