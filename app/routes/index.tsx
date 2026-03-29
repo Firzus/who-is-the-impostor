@@ -35,30 +35,33 @@ function LandingPage() {
     void import("gsap").then(({ default: gsap }) => {
       if (cancelled) return;
 
+      const clearOpacity = (ref: React.RefObject<HTMLDivElement | null>) => () =>
+        ref.current?.classList.remove("opacity-0");
+
       const timeline = gsap.timeline({ defaults: { ease: "power3.out" } });
 
       timeline
         .fromTo(
           titleRef.current,
           { opacity: 0, y: 60, scale: 0.95 },
-          { opacity: 1, y: 0, scale: 1, duration: 1.4 }
+          { opacity: 1, y: 0, scale: 1, duration: 1.4, onComplete: clearOpacity(titleRef) }
         )
         .fromTo(
           subtitleRef.current,
           { opacity: 0, y: 30 },
-          { opacity: 1, y: 0, duration: 1 },
+          { opacity: 1, y: 0, duration: 1, onComplete: clearOpacity(subtitleRef) },
           "-=0.6"
         )
         .fromTo(
           ctaRef.current,
           { opacity: 0, y: 24 },
-          { opacity: 1, y: 0, duration: 0.8 },
+          { opacity: 1, y: 0, duration: 0.8, onComplete: clearOpacity(ctaRef) },
           "-=0.5"
         )
         .fromTo(
           footerTagRef.current,
           { opacity: 0 },
-          { opacity: 1, duration: 0.6 },
+          { opacity: 1, duration: 0.6, onComplete: clearOpacity(footerTagRef) },
           "-=0.3"
         );
 

@@ -5,6 +5,8 @@ import {
   playJoinSound,
   playLeaveSound,
   playRolesAssignedSound,
+} from "@/lib/sound-manager";
+import {
   requestNotificationPermission,
   sendBrowserNotification,
 } from "@/lib/notifications";

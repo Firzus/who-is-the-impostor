@@ -14,6 +14,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { LobbyCard } from "@/components/lobby-card";
 import { LobbySettings } from "@/components/lobby-settings";
 import { useLobbyPolling } from "@/lib/lobby-events";
+import { preloadSounds } from "@/lib/sound-manager";
 import { useLobbyStore } from "@/stores/lobby-store";
 import { setLobbyFlashMessage } from "@/lib/lobby-flash";
 import { minPlayersForLobby } from "@/lib/lobby-lifecycle";
@@ -59,6 +60,7 @@ function LobbyPage() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
+  useEffect(() => { preloadSounds(); }, []);
 
   const revealMatch = useMatch({
     from: "/lobby/$code/reveal",
@@ -119,24 +121,27 @@ function LobbyPage() {
     const playersEl = playersRef.current;
     if (!codeEl || !playersEl) return;
 
+    const clearOpacity = (el: HTMLElement | null) => () =>
+      el?.classList.remove("opacity-0");
+
     const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
     tl.fromTo(
       codeEl,
       { opacity: 0, y: -24 },
-      { opacity: 1, y: 0, duration: 0.8 }
+      { opacity: 1, y: 0, duration: 0.8, onComplete: clearOpacity(codeEl) }
     );
     if (settingsEl && store.lobby) {
       tl.fromTo(
         settingsEl,
         { opacity: 0, y: 16 },
-        { opacity: 1, y: 0, duration: 0.65 },
+        { opacity: 1, y: 0, duration: 0.65, onComplete: clearOpacity(settingsEl) },
         "-=0.45"
       );
     }
     tl.fromTo(
       playersEl,
       { opacity: 0, y: 24 },
-      { opacity: 1, y: 0, duration: 0.8 },
+      { opacity: 1, y: 0, duration: 0.8, onComplete: clearOpacity(playersEl) },
       "-=0.35"
     );
   }, [isRevealRoute, store.lobby?.id]);

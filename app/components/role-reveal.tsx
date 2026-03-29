@@ -9,7 +9,7 @@ import {
 import { burstParticles } from "@/lib/reveal-particles";
 import { SkullIcon } from "@/components/icons/skull-icon";
 import { SwordIcon } from "@/components/icons/sword-icon";
-import { playRevealSound } from "@/lib/notifications";
+import { playRevealSound } from "@/lib/sound-manager";
 
 interface RoleRevealProps {
   role: string;
