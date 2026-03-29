@@ -9,169 +9,289 @@ interface Particle {
   color: string;
   rotation: number;
   rotationSpeed: number;
-  shape: "circle" | "diamond" | "spark" | "rune" | "ring" | "streak";
+  shape: "dot" | "ember" | "spark" | "shard" | "flare";
   life: number;
   maxLife: number;
 }
 
+interface Shockwave {
+  radius: number;
+  maxRadius: number;
+  speed: number;
+  opacity: number;
+  lineWidth: number;
+  color: string;
+}
+
 interface ParticleConfig {
   colors: string[];
-  count: number;
-  spread: number;
+  glowColor: string;
   gravity: number;
+  burstSpeed: number;
+  rayCount: number;
 }
 
 const ROLE_CONFIGS: Record<string, ParticleConfig> = {
   imposteur: {
     colors: [
-      "rgba(224, 64, 64, 1)",
-      "rgba(180, 20, 30, 1)",
-      "rgba(255, 50, 70, 0.95)",
-      "rgba(140, 10, 20, 0.9)",
-      "rgba(255, 100, 80, 0.8)",
-      "rgba(100, 0, 15, 0.7)",
-      "rgba(60, 0, 10, 0.6)",
-      "rgba(255, 30, 50, 1)",
+      "#FF4040", "#E02020", "#FF5030", "#CC1818",
+      "#FF6B4A", "#A01010", "#FF3050", "#800808",
     ],
-    count: 180,
-    spread: 15,
-    gravity: 0.06,
+    glowColor: "#E04040",
+    gravity: 0.05,
+    burstSpeed: 16,
+    rayCount: 10,
   },
   aventurier: {
     colors: [
-      "rgba(80, 200, 120, 1)",
-      "rgba(212, 160, 23, 1)",
-      "rgba(245, 208, 96, 1)",
-      "rgba(120, 230, 150, 0.9)",
-      "rgba(255, 220, 80, 0.85)",
-      "rgba(50, 180, 100, 0.8)",
-      "rgba(255, 240, 160, 0.7)",
-      "rgba(184, 134, 11, 0.9)",
+      "#FFD700", "#FFC040", "#FFEA80", "#E8A010",
+      "#50C878", "#78E898", "#F5D060", "#D4A017",
     ],
-    count: 160,
-    spread: 14,
-    gravity: 0.03,
+    glowColor: "#D4A017",
+    gravity: 0.025,
+    burstSpeed: 14,
+    rayCount: 12,
   },
 };
 
-function randomBetween(a: number, b: number) {
+function rand(a: number, b: number) {
   return a + Math.random() * (b - a);
 }
 
-function createParticle(
-  cx: number,
-  cy: number,
-  config: ParticleConfig,
-  wave: number
-): Particle {
-  const angle = Math.random() * Math.PI * 2;
-  const speed = randomBetween(2, config.spread) * (1 + wave * 0.3);
-  const shapes: Particle["shape"][] = ["circle", "diamond", "spark", "rune", "ring", "streak"];
-  const maxLife = randomBetween(40, 90);
+function hexRgba(hex: string, a: number): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r},${g},${b},${a})`;
+}
 
+function pickColor(colors: string[], maxIndex?: number): string {
+  const n = maxIndex ?? colors.length;
+  return colors[Math.floor(Math.random() * n)];
+}
+
+// ─── Particle factories ─────────────────────────────────────────
+
+function createBurst(cx: number, cy: number, cfg: ParticleConfig): Particle {
+  const a = Math.random() * Math.PI * 2;
+  const spd = rand(4, cfg.burstSpeed);
+  const shapes: Particle["shape"][] = ["dot", "shard", "spark"];
   return {
-    x: cx + randomBetween(-15, 15),
-    y: cy + randomBetween(-20, 20),
-    vx: Math.cos(angle) * speed,
-    vy: Math.sin(angle) * speed - randomBetween(1.5, 4),
-    size: randomBetween(2, 8),
-    opacity: randomBetween(0.8, 1),
-    decay: randomBetween(0.008, 0.018),
-    color: config.colors[Math.floor(Math.random() * config.colors.length)],
-    rotation: Math.random() * 360,
-    rotationSpeed: randomBetween(-6, 6),
+    x: cx + rand(-8, 8), y: cy + rand(-8, 8),
+    vx: Math.cos(a) * spd, vy: Math.sin(a) * spd,
+    size: rand(2, 6), opacity: 1, decay: rand(0.012, 0.022),
+    color: pickColor(cfg.colors),
+    rotation: Math.random() * 360, rotationSpeed: rand(-8, 8),
     shape: shapes[Math.floor(Math.random() * shapes.length)],
-    life: 0,
-    maxLife,
+    life: 0, maxLife: rand(30, 60),
   };
 }
 
+function createEmber(cx: number, cy: number, cfg: ParticleConfig): Particle {
+  return {
+    x: cx + rand(-35, 35), y: cy + rand(-15, 15),
+    vx: rand(-1.5, 1.5), vy: rand(-3.5, -0.8),
+    size: rand(1.5, 4), opacity: rand(0.7, 1), decay: rand(0.005, 0.011),
+    color: pickColor(cfg.colors, 4),
+    rotation: Math.random() * 360, rotationSpeed: rand(-3, 3),
+    shape: "ember", life: 0, maxLife: rand(55, 110),
+  };
+}
+
+function createSpark(cx: number, cy: number, cfg: ParticleConfig): Particle {
+  const a = Math.random() * Math.PI * 2;
+  const spd = rand(10, 24);
+  return {
+    x: cx, y: cy,
+    vx: Math.cos(a) * spd, vy: Math.sin(a) * spd,
+    size: rand(1, 2.5), opacity: 1, decay: rand(0.028, 0.05),
+    color: pickColor(cfg.colors, 3),
+    rotation: 0, rotationSpeed: 0,
+    shape: "dot", life: 0, maxLife: rand(12, 28),
+  };
+}
+
+function createFlare(cx: number, cy: number, cfg: ParticleConfig): Particle {
+  const a = Math.random() * Math.PI * 2;
+  const spd = rand(0.3, 1.8);
+  return {
+    x: cx + rand(-5, 5), y: cy + rand(-5, 5),
+    vx: Math.cos(a) * spd, vy: Math.sin(a) * spd - 0.4,
+    size: rand(10, 18), opacity: rand(0.35, 0.6), decay: rand(0.005, 0.009),
+    color: cfg.colors[0],
+    rotation: 0, rotationSpeed: 0,
+    shape: "flare", life: 0, maxLife: rand(40, 70),
+  };
+}
+
+// ─── Draw helpers ────────────────────────────────────────────────
+
 function drawParticle(ctx: CanvasRenderingContext2D, p: Particle) {
-  ctx.save();
-  const fadeIn = Math.min(p.life / 5, 1);
+  const fadeIn = Math.min(p.life / 3, 1);
   const fadeOut = Math.max(1 - p.life / p.maxLife, 0);
-  ctx.globalAlpha = p.opacity * fadeIn * fadeOut;
+  const alpha = p.opacity * fadeIn * fadeOut;
+  if (alpha < 0.01) return;
+
+  ctx.save();
+  ctx.globalAlpha = alpha;
   ctx.translate(p.x, p.y);
   ctx.rotate((p.rotation * Math.PI) / 180);
-
   ctx.fillStyle = p.color;
   ctx.shadowColor = p.color;
-  ctx.shadowBlur = p.size * 4;
 
   switch (p.shape) {
-    case "circle":
+    case "dot":
+      ctx.shadowBlur = Math.min(p.size * 6, 25);
       ctx.beginPath();
       ctx.arc(0, 0, p.size, 0, Math.PI * 2);
       ctx.fill();
       break;
-    case "diamond":
+
+    case "ember":
+      ctx.shadowBlur = Math.min(p.size * 5, 20);
       ctx.beginPath();
-      ctx.moveTo(0, -p.size);
-      ctx.lineTo(p.size * 0.6, 0);
-      ctx.lineTo(0, p.size);
-      ctx.lineTo(-p.size * 0.6, 0);
-      ctx.closePath();
+      ctx.ellipse(0, 0, p.size * 0.45, p.size * 1.2, 0, 0, Math.PI * 2);
       ctx.fill();
       break;
-    case "spark":
+
+    case "spark": {
+      ctx.shadowBlur = Math.min(p.size * 8, 25);
+      const s = p.size;
       ctx.beginPath();
-      ctx.moveTo(0, -p.size * 1.8);
-      ctx.lineTo(p.size * 0.2, -p.size * 0.2);
-      ctx.lineTo(p.size * 1.8, 0);
-      ctx.lineTo(p.size * 0.2, p.size * 0.2);
-      ctx.lineTo(0, p.size * 1.8);
-      ctx.lineTo(-p.size * 0.2, p.size * 0.2);
-      ctx.lineTo(-p.size * 1.8, 0);
-      ctx.lineTo(-p.size * 0.2, -p.size * 0.2);
+      ctx.moveTo(0, -s * 2);
+      ctx.lineTo(s * 0.15, -s * 0.15);
+      ctx.lineTo(s * 2, 0);
+      ctx.lineTo(s * 0.15, s * 0.15);
+      ctx.lineTo(0, s * 2);
+      ctx.lineTo(-s * 0.15, s * 0.15);
+      ctx.lineTo(-s * 2, 0);
+      ctx.lineTo(-s * 0.15, -s * 0.15);
       ctx.closePath();
       ctx.fill();
-      break;
-    case "rune":
-      ctx.lineWidth = 1.5;
-      ctx.strokeStyle = p.color;
-      ctx.beginPath();
-      ctx.arc(0, 0, p.size, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(-p.size * 0.5, 0);
-      ctx.lineTo(p.size * 0.5, 0);
-      ctx.moveTo(0, -p.size * 0.5);
-      ctx.lineTo(0, p.size * 0.5);
-      ctx.stroke();
-      break;
-    case "ring":
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = p.color;
-      ctx.beginPath();
-      ctx.arc(0, 0, p.size * 1.2, 0, Math.PI * 2);
-      ctx.stroke();
-      break;
-    case "streak": {
-      const len = p.size * 3;
-      const grad = ctx.createLinearGradient(0, -len / 2, 0, len / 2);
-      grad.addColorStop(0, "transparent");
-      grad.addColorStop(0.5, p.color);
-      grad.addColorStop(1, "transparent");
-      ctx.strokeStyle = grad;
-      ctx.lineWidth = p.size * 0.4;
-      ctx.beginPath();
-      ctx.moveTo(0, -len / 2);
-      ctx.lineTo(0, len / 2);
-      ctx.stroke();
       break;
     }
+
+    case "shard":
+      ctx.shadowBlur = Math.min(p.size * 5, 20);
+      ctx.beginPath();
+      ctx.moveTo(0, -p.size * 1.4);
+      ctx.lineTo(p.size * 0.35, 0);
+      ctx.lineTo(0, p.size * 1.4);
+      ctx.lineTo(-p.size * 0.35, 0);
+      ctx.closePath();
+      ctx.fill();
+      break;
+
+    case "flare":
+      ctx.shadowBlur = Math.min(p.size * 10, 50);
+      ctx.globalAlpha = alpha * 0.5;
+      ctx.beginPath();
+      ctx.arc(0, 0, p.size, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = alpha;
+      ctx.shadowBlur = 0;
+      ctx.beginPath();
+      ctx.arc(0, 0, p.size * 0.25, 0, Math.PI * 2);
+      ctx.fill();
+      break;
   }
 
   ctx.restore();
 }
 
+function drawShockwave(
+  ctx: CanvasRenderingContext2D,
+  sw: Shockwave,
+  cx: number,
+  cy: number,
+) {
+  const progress = sw.radius / sw.maxRadius;
+  const alpha = (1 - progress) * sw.opacity;
+  if (alpha < 0.01) return;
+
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.strokeStyle = sw.color;
+  ctx.lineWidth = sw.lineWidth * (1 - progress * 0.6);
+  ctx.shadowBlur = 12;
+  ctx.shadowColor = sw.color;
+  ctx.beginPath();
+  ctx.arc(cx, cy, sw.radius, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawGodRays(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  frame: number,
+  cfg: ParticleConfig,
+  reach: number,
+) {
+  const fadeIn = Math.min(Math.max(frame - 4, 0) / 10, 1);
+  const fadeOut = Math.max(1 - Math.max(frame - 50, 0) / 50, 0);
+  const base = fadeIn * fadeOut * 0.18;
+  if (base < 0.005) return;
+
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(frame * 0.004);
+
+  for (let i = 0; i < cfg.rayCount; i++) {
+    const angle = (i / cfg.rayCount) * Math.PI * 2;
+    const width = 0.1 + Math.sin(frame * 0.04 + i * 1.3) * 0.025;
+
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.arc(0, 0, reach, angle - width / 2, angle + width / 2);
+    ctx.closePath();
+
+    const g = ctx.createRadialGradient(0, 0, 0, 0, 0, reach);
+    g.addColorStop(0, hexRgba(cfg.glowColor, base));
+    g.addColorStop(0.35, hexRgba(cfg.glowColor, base * 0.35));
+    g.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = g;
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+function drawFlash(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  frame: number,
+  cfg: ParticleConfig,
+  maxR: number,
+) {
+  if (frame > 18) return;
+  const t = frame / 18;
+  const alpha = (1 - t) * 0.55;
+  const r = maxR * (0.25 + t * 0.75);
+
+  ctx.save();
+  const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+  g.addColorStop(0, hexRgba(cfg.glowColor, alpha));
+  g.addColorStop(0.5, hexRgba(cfg.glowColor, alpha * 0.25));
+  g.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+// ─── Main ────────────────────────────────────────────────────────
+
 export function burstParticles(
   canvas: HTMLCanvasElement,
-  role: string
+  role: string,
 ): () => void {
-  const config = ROLE_CONFIGS[role] ?? ROLE_CONFIGS.aventurier;
+  const cfg = ROLE_CONFIGS[role] ?? ROLE_CONFIGS.aventurier;
   const ctx = canvas.getContext("2d");
-  if (!ctx) return () => { };
+  if (!ctx) return () => {};
 
   const dpr = window.devicePixelRatio || 1;
   const rect = canvas.getBoundingClientRect();
@@ -181,46 +301,113 @@ export function burstParticles(
 
   const cx = rect.width / 2;
   const cy = rect.height / 2;
+  const maxDim = Math.max(rect.width, rect.height);
 
   const particles: Particle[] = [];
+  const shockwaves: Shockwave[] = [];
   let cancelled = false;
   let animId: number;
   let frame = 0;
 
-  for (let i = 0; i < config.count; i++) {
-    particles.push(createParticle(cx, cy, config, 0));
-  }
+  // Initial burst
+  for (let i = 0; i < 50; i++) particles.push(createBurst(cx, cy, cfg));
+  for (let i = 0; i < 6; i++) particles.push(createFlare(cx, cy, cfg));
+  shockwaves.push({
+    radius: 0, maxRadius: maxDim * 0.35, speed: 4.5,
+    opacity: 0.8, lineWidth: 3, color: cfg.glowColor,
+  });
 
-  const burstWaves = [
-    { delay: 5, count: 50 },
-    { delay: 14, count: 40 },
-    { delay: 26, count: 30 },
-    { delay: 40, count: 20 },
+  // Staggered waves
+  const waves: { at: number; run: () => void }[] = [
+    {
+      at: 3,
+      run: () => {
+        shockwaves.push({
+          radius: 0, maxRadius: maxDim * 0.25, speed: 6.5,
+          opacity: 0.5, lineWidth: 2, color: cfg.glowColor,
+        });
+      },
+    },
+    {
+      at: 6,
+      run: () => {
+        for (let i = 0; i < 30; i++) particles.push(createEmber(cx, cy, cfg));
+        for (let i = 0; i < 20; i++) particles.push(createSpark(cx, cy, cfg));
+      },
+    },
+    {
+      at: 15,
+      run: () => {
+        for (let i = 0; i < 20; i++) particles.push(createEmber(cx, cy, cfg));
+        for (let i = 0; i < 15; i++) particles.push(createSpark(cx, cy, cfg));
+      },
+    },
+    {
+      at: 25,
+      run: () => {
+        shockwaves.push({
+          radius: 0, maxRadius: maxDim * 0.5, speed: 3,
+          opacity: 0.3, lineWidth: 1.5, color: cfg.glowColor,
+        });
+        for (let i = 0; i < 12; i++) particles.push(createEmber(cx, cy, cfg));
+      },
+    },
+    {
+      at: 40,
+      run: () => {
+        for (let i = 0; i < 8; i++) particles.push(createEmber(cx, cy, cfg));
+      },
+    },
   ];
 
   function tick() {
     if (cancelled) return;
     frame++;
     ctx!.clearRect(0, 0, rect.width, rect.height);
+    ctx!.globalCompositeOperation = "lighter";
 
-    for (const wave of burstWaves) {
-      if (frame === wave.delay) {
-        for (let i = 0; i < wave.count; i++) {
-          particles.push(createParticle(cx, cy, config, burstWaves.indexOf(wave) + 1));
-        }
-      }
+    for (const w of waves) {
+      if (frame === w.at) w.run();
     }
 
+    // Layer 1 – central flash
+    drawFlash(ctx!, cx, cy, frame, cfg, maxDim * 0.4);
+
+    // Layer 2 – god rays
+    drawGodRays(ctx!, cx, cy, frame, cfg, maxDim * 0.55);
+
+    // Layer 3 – shockwaves
+    for (let i = shockwaves.length - 1; i >= 0; i--) {
+      const sw = shockwaves[i];
+      sw.radius += sw.speed;
+      drawShockwave(ctx!, sw, cx, cy);
+      if (sw.radius >= sw.maxRadius) shockwaves.splice(i, 1);
+    }
+
+    // Layer 4 – particles
     for (let i = particles.length - 1; i >= 0; i--) {
       const p = particles[i];
       p.x += p.vx;
       p.y += p.vy;
-      p.vy += config.gravity;
-      p.vx *= 0.985;
-      p.vy *= 0.985;
+
+      if (p.shape === "ember") {
+        p.vy -= 0.012;
+        p.vx += rand(-0.08, 0.08);
+        p.vx *= 0.995;
+        p.vy *= 0.995;
+      } else if (p.shape === "flare") {
+        p.vy -= 0.005;
+        p.vx *= 0.98;
+        p.vy *= 0.98;
+      } else {
+        p.vy += cfg.gravity;
+        p.vx *= 0.985;
+        p.vy *= 0.985;
+      }
+
       p.opacity -= p.decay;
       p.rotation += p.rotationSpeed;
-      p.size *= 0.998;
+      p.size *= 0.997;
       p.life++;
 
       if (p.opacity <= 0 || p.life > p.maxLife) {
@@ -231,7 +418,7 @@ export function burstParticles(
       drawParticle(ctx!, p);
     }
 
-    if (particles.length > 0) {
+    if (particles.length > 0 || shockwaves.length > 0 || frame < 100) {
       animId = requestAnimationFrame(tick);
     }
   }

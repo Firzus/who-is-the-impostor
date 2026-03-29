@@ -9,6 +9,7 @@ import {
 import { burstParticles } from "@/lib/reveal-particles";
 import { SkullIcon } from "@/components/icons/skull-icon";
 import { SwordIcon } from "@/components/icons/sword-icon";
+import { playRevealSound } from "@/lib/notifications";
 
 interface RoleRevealProps {
   role: string;
@@ -102,6 +103,7 @@ export function RoleReveal({ role, playerName, onConfirm }: RoleRevealProps) {
               particleCleanup.current = burstParticles(canvas, role);
               triggerScreenFlash();
               triggerScreenShake();
+              playRevealSound(role);
             }, 350);
           }
         },
