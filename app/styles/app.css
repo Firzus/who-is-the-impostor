@@ -394,3 +394,36 @@
     transition: opacity 0.3s;
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-pulse,
+  .animate-spin,
+  .animate-ping,
+  .animate-pulse-glow,
+  .animate-float {
+    animation: none !important;
+  }
+
+  .shimmer::after {
+    animation: none !important;
+  }
+
+  .noise-overlay {
+    display: none;
+  }
+
+  /* Ensure elements that start with opacity-0 for GSAP are visible */
+  .fade-up {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

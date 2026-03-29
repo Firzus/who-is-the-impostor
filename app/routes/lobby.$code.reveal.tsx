@@ -4,7 +4,7 @@ import gsap from "gsap";
 import { RoleReveal } from "@/components/role-reveal";
 import { RevealConfirmation } from "@/components/reveal-confirmation";
 import { useLobbyStore } from "@/stores/lobby-store";
-import { getPlayerRole } from "@/server/functions/lobby";
+import { getPlayerRole, getLobby } from "@/server/functions/lobby";
 import { Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/lobby/$code/reveal")({
@@ -61,6 +61,24 @@ function RevealPage() {
       { opacity: 0, y: 12 },
       { opacity: 1, y: 0, duration: 0.5, ease: "power2.out", delay: 0.2 }
     );
+  }, [confirmed]);
+
+  // Poll lobby status after confirmation to detect "finished"
+  useEffect(() => {
+    if (!confirmed) return;
+    const { lobby } = useLobbyStore.getState();
+    if (!lobby) return;
+
+    const pollStatus = async () => {
+      try {
+        const result = await getLobby({ data: lobby.code });
+        useLobbyStore.getState().setLobby(result.lobby);
+      } catch {}
+    };
+
+    pollStatus();
+    const interval = setInterval(pollStatus, 3000);
+    return () => clearInterval(interval);
   }, [confirmed]);
 
   const handleConfirm = () => {

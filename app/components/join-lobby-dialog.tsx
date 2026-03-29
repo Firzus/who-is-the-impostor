@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { joinLobby } from "@/server/functions/lobby";
 import { useLobbyStore } from "@/stores/lobby-store";
+import { getSavedPseudo, savePseudo } from "@/lib/pseudo-storage";
 
 interface JoinLobbyDialogProps {
   open: boolean;
@@ -23,7 +24,7 @@ export function JoinLobbyDialog({ open, onOpenChange }: JoinLobbyDialogProps) {
   const codeId = useId();
   const nameId = useId();
   const [code, setCode] = useState("");
-  const [name, setName] = useState("");
+  const [name, setName] = useState(getSavedPseudo);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -46,6 +47,7 @@ export function JoinLobbyDialog({ open, onOpenChange }: JoinLobbyDialogProps) {
       const result = await joinLobby({
         data: { code: code.toUpperCase(), playerName: name },
       });
+      savePseudo(name);
       store.setMyPlayerId(result.player.id);
       store.setLobby(result.lobby);
       onOpenChange(false);

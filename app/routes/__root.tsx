@@ -106,6 +106,9 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
             <ShaderBackground />
           </Suspense>
         </ClientOnly>
+        <noscript>
+          <style>{`.opacity-0 { opacity: 1 !important; }`}</style>
+        </noscript>
         <div className="noise-overlay" aria-hidden="true" />
         {children}
         <Toaster />

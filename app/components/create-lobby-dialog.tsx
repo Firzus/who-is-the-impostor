@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { createLobby } from "@/server/functions/lobby";
 import { useLobbyStore } from "@/stores/lobby-store";
+import { getSavedPseudo, savePseudo } from "@/lib/pseudo-storage";
 
 interface CreateLobbyDialogProps {
   open: boolean;
@@ -21,7 +22,7 @@ interface CreateLobbyDialogProps {
 
 export function CreateLobbyDialog({ open, onOpenChange }: CreateLobbyDialogProps) {
   const nameId = useId();
-  const [name, setName] = useState("");
+  const [name, setName] = useState(getSavedPseudo);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -38,6 +39,7 @@ export function CreateLobbyDialog({ open, onOpenChange }: CreateLobbyDialogProps
 
     try {
       const result = await createLobby({ data: { hostName: name } });
+      savePseudo(name);
       store.setMyPlayerId(result.player.id);
       store.setLobby(result.lobby);
       onOpenChange(false);

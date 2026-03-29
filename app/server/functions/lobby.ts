@@ -1,7 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { db } from "../db";
 import { lobbies, players } from "../db/schema";
-import { and, count, desc, eq, isNotNull, isNull } from "drizzle-orm";
+import { and, asc, count, desc, eq, isNotNull, isNull, ne } from "drizzle-orm";
+import { signToken } from "../auth";
 import { generateLobbyCode } from "@/lib/utils";
 import {
   getKickCooldownMs,
@@ -16,6 +17,9 @@ import {
   playerUuidSchema,
   kickPlayerSchema,
   updateLobbySettingsSchema,
+  transferHostSchema,
+  leaveLobbySchema,
+  lobbyResultsSchema,
 } from "@/lib/validators";
 
 function pickImpostorIndices(
@@ -56,7 +60,8 @@ export const createLobby = createServerFn({ method: "POST" })
       .set({ hostId: host.id })
       .where(eq(lobbies.id, lobby.id));
 
-    return { lobby: { ...lobby, hostId: host.id }, player: host };
+    const token = signToken(host.id, lobby.id);
+    return { lobby: { ...lobby, hostId: host.id }, player: host, token };
   });
 
 export const joinLobby = createServerFn({ method: "POST" })
@@ -77,6 +82,22 @@ export const joinLobby = createServerFn({ method: "POST" })
 
     if (lobby.status !== "waiting") {
       throw new Error("Les rôles ont déjà été attribués");
+    }
+
+    const [existingActive] = await db
+      .select({ id: players.id })
+      .from(players)
+      .where(
+        and(
+          eq(players.lobbyId, lobby.id),
+          eq(players.name, data.playerName),
+          isNull(players.kickedAt)
+        )
+      )
+      .limit(1);
+
+    if (existingActive) {
+      throw new Error("Ce pseudo est déjà utilisé dans ce lobby");
     }
 
     const [lastKick] = await db
@@ -112,7 +133,8 @@ export const joinLobby = createServerFn({ method: "POST" })
       })
       .returning();
 
-    return { lobby, player };
+    const token = signToken(player.id, lobby.id);
+    return { lobby, player, token };
   });
 
 // POST avoids intermediary/browser caching of repeated lobby reads during polling.
@@ -334,18 +356,178 @@ export const assignRoles = createServerFn({ method: "POST" })
       pickImpostorIndices(impostorCount, lobbyPlayers.length)
     );
 
-    for (let i = 0; i < lobbyPlayers.length; i++) {
-      const role = impostorIndices.has(i) ? "imposteur" : "aventurier";
-      await db
-        .update(players)
-        .set({ role, hasSeenRole: false })
-        .where(eq(players.id, lobbyPlayers[i]!.id));
-    }
+    await db.transaction(async (tx) => {
+      for (let i = 0; i < lobbyPlayers.length; i++) {
+        const role = impostorIndices.has(i) ? "imposteur" : "aventurier";
+        await tx
+          .update(players)
+          .set({ role, hasSeenRole: false })
+          .where(eq(players.id, lobbyPlayers[i]!.id));
+      }
 
-    await db
-      .update(lobbies)
-      .set({ status: "roles_assigned" })
-      .where(eq(lobbies.id, data.lobbyId));
+      await tx
+        .update(lobbies)
+        .set({ status: "roles_assigned" })
+        .where(eq(lobbies.id, data.lobbyId));
+    });
 
     return { success: true };
+  });
+
+export const transferHost = createServerFn({ method: "POST" })
+  .inputValidator(transferHostSchema)
+  .handler(async ({ data }) => {
+    const [requester] = await db
+      .select()
+      .from(players)
+      .where(
+        and(eq(players.id, data.requesterId), eq(players.lobbyId, data.lobbyId))
+      );
+
+    if (!requester || !requester.isHost) {
+      throw new Error("Seul l'hôte peut transférer ce rôle");
+    }
+
+    const [target] = await db
+      .select()
+      .from(players)
+      .where(
+        and(
+          eq(players.id, data.targetPlayerId),
+          eq(players.lobbyId, data.lobbyId),
+          isNull(players.kickedAt)
+        )
+      );
+
+    if (!target) {
+      throw new Error("Joueur introuvable dans ce lobby");
+    }
+
+    if (data.targetPlayerId === data.requesterId) {
+      throw new Error("Vous êtes déjà l'hôte");
+    }
+
+    await db.transaction(async (tx) => {
+      await tx
+        .update(players)
+        .set({ isHost: false })
+        .where(eq(players.id, data.requesterId));
+
+      await tx
+        .update(players)
+        .set({ isHost: true })
+        .where(eq(players.id, data.targetPlayerId));
+
+      await tx
+        .update(lobbies)
+        .set({ hostId: data.targetPlayerId })
+        .where(eq(lobbies.id, data.lobbyId));
+    });
+
+    return { success: true };
+  });
+
+export const leaveLobby = createServerFn({ method: "POST" })
+  .inputValidator(leaveLobbySchema)
+  .handler(async ({ data }) => {
+    const [player] = await db
+      .select()
+      .from(players)
+      .where(
+        and(
+          eq(players.id, data.playerId),
+          eq(players.lobbyId, data.lobbyId),
+          isNull(players.kickedAt)
+        )
+      );
+
+    if (!player) {
+      throw new Error("Joueur introuvable dans ce lobby");
+    }
+
+    const [lobbyRow] = await db
+      .select()
+      .from(lobbies)
+      .where(eq(lobbies.id, data.lobbyId));
+
+    if (!lobbyRow || lobbyRow.status !== "waiting") {
+      throw new Error("Impossible de quitter en dehors de la phase d'attente");
+    }
+
+    await db.transaction(async (tx) => {
+      await tx
+        .update(players)
+        .set({ kickedAt: new Date() })
+        .where(eq(players.id, data.playerId));
+
+      if (player.isHost) {
+        const [nextHost] = await tx
+          .select()
+          .from(players)
+          .where(
+            and(
+              eq(players.lobbyId, data.lobbyId),
+              isNull(players.kickedAt),
+              ne(players.id, data.playerId)
+            )
+          )
+          .orderBy(asc(players.joinedAt))
+          .limit(1);
+
+        if (nextHost) {
+          await tx
+            .update(players)
+            .set({ isHost: true })
+            .where(eq(players.id, nextHost.id));
+
+          await tx
+            .update(lobbies)
+            .set({ hostId: nextHost.id })
+            .where(eq(lobbies.id, data.lobbyId));
+        }
+      }
+    });
+
+    return { success: true };
+  });
+
+export const getLobbyResults = createServerFn({ method: "POST" })
+  .inputValidator(lobbyResultsSchema)
+  .handler(async ({ data }) => {
+    const [lobby] = await db
+      .select()
+      .from(lobbies)
+      .where(eq(lobbies.id, data.lobbyId));
+
+    if (!lobby) {
+      throw new Error("Lobby introuvable");
+    }
+
+    if (lobby.status !== "finished" && lobby.status !== "roles_assigned") {
+      throw new Error("La partie n'est pas encore terminée");
+    }
+
+    const [requester] = await db
+      .select()
+      .from(players)
+      .where(
+        and(eq(players.id, data.playerId), eq(players.lobbyId, data.lobbyId))
+      );
+
+    if (!requester) {
+      throw new Error("Vous ne faites pas partie de ce lobby");
+    }
+
+    const allPlayers = await db
+      .select({
+        id: players.id,
+        name: players.name,
+        role: players.role,
+        isHost: players.isHost,
+      })
+      .from(players)
+      .where(and(eq(players.lobbyId, data.lobbyId), isNull(players.kickedAt)))
+      .orderBy(asc(players.joinedAt));
+
+    return { players: allPlayers, impostorCount: lobby.impostorCount };
   });

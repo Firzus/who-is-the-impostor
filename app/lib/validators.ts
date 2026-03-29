@@ -52,8 +52,27 @@ export const lobbyAccessCodeSchema = z
 /** GET server fn: player id for role fetch */
 export const playerUuidSchema = z.string().uuid();
 
+export const transferHostSchema = z.object({
+  lobbyId: z.string().uuid(),
+  requesterId: z.string().uuid(),
+  targetPlayerId: z.string().uuid(),
+});
+
+export const leaveLobbySchema = z.object({
+  lobbyId: z.string().uuid(),
+  playerId: z.string().uuid(),
+});
+
+export const lobbyResultsSchema = z.object({
+  lobbyId: z.string().uuid(),
+  playerId: z.string().uuid(),
+});
+
+export type LobbyResultsInput = z.infer<typeof lobbyResultsSchema>;
 export type CreateLobbyInput = z.infer<typeof createLobbySchema>;
 export type JoinLobbyInput = z.infer<typeof joinLobbySchema>;
 export type AssignRolesInput = z.infer<typeof assignRolesSchema>;
 export type KickPlayerInput = z.infer<typeof kickPlayerSchema>;
 export type UpdateLobbySettingsInput = z.infer<typeof updateLobbySettingsSchema>;
+export type TransferHostInput = z.infer<typeof transferHostSchema>;
+export type LeaveLobbyInput = z.infer<typeof leaveLobbySchema>;

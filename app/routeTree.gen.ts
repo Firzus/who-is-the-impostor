@@ -15,6 +15,8 @@ import { Route as RobotsTxtRouteImport } from './routes/robots.txt'
 import { Route as LobbyCodeRouteImport } from './routes/lobby.$code'
 import { Route as ApiHealthRouteImport } from './routes/api.health'
 import { Route as LobbyCodeRevealRouteImport } from './routes/lobby.$code.reveal'
+import { Route as LobbyCodeResultsRouteImport } from './routes/lobby.$code.results'
+import { Route as ApiLobbyCodeEventsRouteImport } from './routes/api.lobby.$code.events'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -46,6 +48,16 @@ const LobbyCodeRevealRoute = LobbyCodeRevealRouteImport.update({
   path: '/reveal',
   getParentRoute: () => LobbyCodeRoute,
 } as any)
+const LobbyCodeResultsRoute = LobbyCodeResultsRouteImport.update({
+  id: '/results',
+  path: '/results',
+  getParentRoute: () => LobbyCodeRoute,
+} as any)
+const ApiLobbyCodeEventsRoute = ApiLobbyCodeEventsRouteImport.update({
+  id: '/api/lobby/$code/events',
+  path: '/api/lobby/$code/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -53,7 +65,9 @@ export interface FileRoutesByFullPath {
   '/lobby/$code': typeof LobbyCodeRouteWithChildren
   '/robots/txt': typeof RobotsTxtRoute
   '/sitemap/xml': typeof SitemapXmlRoute
+  '/lobby/$code/results': typeof LobbyCodeResultsRoute
   '/lobby/$code/reveal': typeof LobbyCodeRevealRoute
+  '/api/lobby/$code/events': typeof ApiLobbyCodeEventsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -61,7 +75,9 @@ export interface FileRoutesByTo {
   '/lobby/$code': typeof LobbyCodeRouteWithChildren
   '/robots/txt': typeof RobotsTxtRoute
   '/sitemap/xml': typeof SitemapXmlRoute
+  '/lobby/$code/results': typeof LobbyCodeResultsRoute
   '/lobby/$code/reveal': typeof LobbyCodeRevealRoute
+  '/api/lobby/$code/events': typeof ApiLobbyCodeEventsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -70,7 +86,9 @@ export interface FileRoutesById {
   '/lobby/$code': typeof LobbyCodeRouteWithChildren
   '/robots/txt': typeof RobotsTxtRoute
   '/sitemap/xml': typeof SitemapXmlRoute
+  '/lobby/$code/results': typeof LobbyCodeResultsRoute
   '/lobby/$code/reveal': typeof LobbyCodeRevealRoute
+  '/api/lobby/$code/events': typeof ApiLobbyCodeEventsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -80,7 +98,9 @@ export interface FileRouteTypes {
     | '/lobby/$code'
     | '/robots/txt'
     | '/sitemap/xml'
+    | '/lobby/$code/results'
     | '/lobby/$code/reveal'
+    | '/api/lobby/$code/events'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -88,7 +108,9 @@ export interface FileRouteTypes {
     | '/lobby/$code'
     | '/robots/txt'
     | '/sitemap/xml'
+    | '/lobby/$code/results'
     | '/lobby/$code/reveal'
+    | '/api/lobby/$code/events'
   id:
     | '__root__'
     | '/'
@@ -96,7 +118,9 @@ export interface FileRouteTypes {
     | '/lobby/$code'
     | '/robots/txt'
     | '/sitemap/xml'
+    | '/lobby/$code/results'
     | '/lobby/$code/reveal'
+    | '/api/lobby/$code/events'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -105,6 +129,7 @@ export interface RootRouteChildren {
   LobbyCodeRoute: typeof LobbyCodeRouteWithChildren
   RobotsTxtRoute: typeof RobotsTxtRoute
   SitemapXmlRoute: typeof SitemapXmlRoute
+  ApiLobbyCodeEventsRoute: typeof ApiLobbyCodeEventsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -151,14 +176,30 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LobbyCodeRevealRouteImport
       parentRoute: typeof LobbyCodeRoute
     }
+    '/lobby/$code/results': {
+      id: '/lobby/$code/results'
+      path: '/results'
+      fullPath: '/lobby/$code/results'
+      preLoaderRoute: typeof LobbyCodeResultsRouteImport
+      parentRoute: typeof LobbyCodeRoute
+    }
+    '/api/lobby/$code/events': {
+      id: '/api/lobby/$code/events'
+      path: '/api/lobby/$code/events'
+      fullPath: '/api/lobby/$code/events'
+      preLoaderRoute: typeof ApiLobbyCodeEventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 interface LobbyCodeRouteChildren {
+  LobbyCodeResultsRoute: typeof LobbyCodeResultsRoute
   LobbyCodeRevealRoute: typeof LobbyCodeRevealRoute
 }
 
 const LobbyCodeRouteChildren: LobbyCodeRouteChildren = {
+  LobbyCodeResultsRoute: LobbyCodeResultsRoute,
   LobbyCodeRevealRoute: LobbyCodeRevealRoute,
 }
 
@@ -172,6 +213,7 @@ const rootRouteChildren: RootRouteChildren = {
   LobbyCodeRoute: LobbyCodeRouteWithChildren,
   RobotsTxtRoute: RobotsTxtRoute,
   SitemapXmlRoute: SitemapXmlRoute,
+  ApiLobbyCodeEventsRoute: ApiLobbyCodeEventsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

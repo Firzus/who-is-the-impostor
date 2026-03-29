@@ -24,29 +24,33 @@ interface ParticleConfig {
 const ROLE_CONFIGS: Record<string, ParticleConfig> = {
   imposteur: {
     colors: [
-      "rgba(244, 63, 94, 1)",
-      "rgba(251, 113, 133, 1)",
-      "rgba(225, 29, 72, 1)",
-      "rgba(255, 80, 100, 0.9)",
-      "rgba(255, 160, 140, 0.8)",
-      "rgba(190, 20, 50, 0.7)",
+      "rgba(224, 64, 64, 1)",
+      "rgba(180, 20, 30, 1)",
+      "rgba(255, 50, 70, 0.95)",
+      "rgba(140, 10, 20, 0.9)",
+      "rgba(255, 100, 80, 0.8)",
+      "rgba(100, 0, 15, 0.7)",
+      "rgba(60, 0, 10, 0.6)",
+      "rgba(255, 30, 50, 1)",
     ],
-    count: 140,
-    spread: 12,
-    gravity: 0.04,
+    count: 180,
+    spread: 15,
+    gravity: 0.06,
   },
   aventurier: {
     colors: [
+      "rgba(80, 200, 120, 1)",
       "rgba(212, 160, 23, 1)",
       "rgba(245, 208, 96, 1)",
-      "rgba(184, 134, 11, 1)",
-      "rgba(255, 220, 80, 0.9)",
-      "rgba(255, 240, 160, 0.8)",
-      "rgba(160, 120, 10, 0.7)",
+      "rgba(120, 230, 150, 0.9)",
+      "rgba(255, 220, 80, 0.85)",
+      "rgba(50, 180, 100, 0.8)",
+      "rgba(255, 240, 160, 0.7)",
+      "rgba(184, 134, 11, 0.9)",
     ],
-    count: 140,
-    spread: 12,
-    gravity: 0.04,
+    count: 160,
+    spread: 14,
+    gravity: 0.03,
   },
 };
 
@@ -188,9 +192,10 @@ export function burstParticles(
   }
 
   const burstWaves = [
-    { delay: 8, count: 40 },
-    { delay: 18, count: 30 },
-    { delay: 30, count: 20 },
+    { delay: 5, count: 50 },
+    { delay: 14, count: 40 },
+    { delay: 26, count: 30 },
+    { delay: 40, count: 20 },
   ];
 
   function tick() {

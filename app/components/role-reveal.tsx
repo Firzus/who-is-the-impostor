@@ -213,9 +213,18 @@ export function RoleReveal({ role, playerName, onConfirm }: RoleRevealProps) {
           style={{ width: "calc(100% + 16rem)", height: "calc(100% + 16rem)" }}
         />
         <div
-          className="relative h-[340px] w-[240px] cursor-pointer select-none"
+          className="relative h-[340px] w-[240px] cursor-pointer select-none md:h-[400px] md:w-[280px]"
           style={{ perspective: "1200px" }}
+          role="button"
+          tabIndex={0}
+          aria-label={revealed ? `Ton rôle : ${role}` : "Clique pour révéler ton rôle"}
           onClick={handleReveal}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              handleReveal();
+            }
+          }}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
         >

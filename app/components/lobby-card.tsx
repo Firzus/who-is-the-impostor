@@ -1,15 +1,19 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import gsap from "gsap";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { User, Crown, UserX } from "lucide-react";
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
+import { User, Crown, UserX, ArrowRightLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { LobbyPlayer } from "@/stores/lobby-store";
 
@@ -19,6 +23,8 @@ interface LobbyCardProps {
   showKick?: boolean;
   onKick?: (playerId: string) => void | Promise<void>;
   kickLoading?: boolean;
+  onTransferHost?: (playerId: string) => void | Promise<void>;
+  transferLoading?: boolean;
 }
 
 export function LobbyCard({
@@ -27,8 +33,21 @@ export function LobbyCard({
   showKick,
   onKick,
   kickLoading,
+  onTransferHost,
+  transferLoading,
 }: LobbyCardProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = cardRef.current;
+    if (!el) return;
+    gsap.fromTo(
+      el,
+      { opacity: 0, x: -16, scale: 0.97 },
+      { opacity: 1, x: 0, scale: 1, duration: 0.4, ease: "power2.out" }
+    );
+  }, []);
 
   const handleConfirmKick = async () => {
     if (!onKick) return;
@@ -39,6 +58,7 @@ export function LobbyCard({
   return (
     <>
       <div
+        ref={cardRef}
         className={cn(
           "group flex items-center gap-3 border p-3 transition-all duration-200",
           isMe
@@ -79,6 +99,20 @@ export function LobbyCard({
               Toi
             </Badge>
           )}
+          {onTransferHost && !player.isHost && !isMe && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-muted-foreground hover:bg-[#50C878]/10 hover:text-[#50C878]"
+              aria-label={`Transférer l'hôte à ${player.name}`}
+              onClick={() => void onTransferHost(player.id)}
+              disabled={transferLoading}
+              title="Transférer l'hôte"
+            >
+              <ArrowRightLeft className="h-3.5 w-3.5" />
+            </Button>
+          )}
           {showKick && !player.isHost && onKick && (
             <Button
               type="button"
@@ -95,34 +129,27 @@ export function LobbyCard({
         </div>
       </div>
 
-      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle>Expulser {player.name}&nbsp;?</DialogTitle>
-            <DialogDescription>
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent className="max-w-sm">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Expulser {player.name}&nbsp;?</AlertDialogTitle>
+            <AlertDialogDescription>
               Ce joueur sera retiré du lobby et ne pourra pas le rejoindre
               immédiatement.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setConfirmOpen(false)}
-            >
-              Annuler
-            </Button>
-            <Button
-              type="button"
-              variant="destructive"
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
               onClick={() => void handleConfirmKick()}
               disabled={kickLoading}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Expulser
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
