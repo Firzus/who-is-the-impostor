@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
+import { toast } from "sonner";
 import { CreateLobbyDialog } from "@/components/create-lobby-dialog";
 import { JoinLobbyDialog } from "@/components/join-lobby-dialog";
 import {
@@ -7,6 +8,7 @@ import {
   LandingTitle,
   LandingSubtitle,
 } from "@/components/landing-hero";
+import { consumeLobbyFlashMessage } from "@/lib/lobby-flash";
 
 export const Route = createFileRoute("/")(
   { component: LandingPage },
@@ -15,6 +17,11 @@ export const Route = createFileRoute("/")(
 function LandingPage() {
   const [showCreate, setShowCreate] = useState(false);
   const [showJoin, setShowJoin] = useState(false);
+
+  useEffect(() => {
+    const msg = consumeLobbyFlashMessage();
+    if (msg) toast.error(msg);
+  }, []);
 
   const titleRef = useRef<HTMLDivElement>(null);
   const subtitleRef = useRef<HTMLDivElement>(null);

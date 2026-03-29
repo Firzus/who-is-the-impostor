@@ -34,6 +34,7 @@ export interface LobbyState {
     code: string;
     status: string;
     hostId: string | null;
+    impostorCount: number;
   } | null;
   players: LobbyPlayer[];
   myPlayerId: string | null;

@@ -4,8 +4,34 @@
 
 export const LOBBY_TTL_HOURS = 2;
 
+/** Default kick rejoin cooldown when KICK_COOLDOWN_SECONDS is unset or invalid. */
+export const DEFAULT_KICK_COOLDOWN_SECONDS = 10;
+
+/** Max impostors configurable in lobby settings (host UI). */
+export const MAX_IMPOSTOR_COUNT = 3;
+
 export function getLobbyTtlMs(): number {
   return LOBBY_TTL_HOURS * 60 * 60 * 1000;
+}
+
+/**
+ * Server-only: reads KICK_COOLDOWN_SECONDS from the environment (seconds).
+ * Invalid or missing values fall back to DEFAULT_KICK_COOLDOWN_SECONDS.
+ */
+export function getKickCooldownMs(): number {
+  const raw = process.env.KICK_COOLDOWN_SECONDS;
+  const parsed =
+    raw != null && raw !== "" ? Number.parseInt(raw, 10) : Number.NaN;
+  const seconds =
+    Number.isFinite(parsed) && parsed >= 0
+      ? parsed
+      : DEFAULT_KICK_COOLDOWN_SECONDS;
+  return seconds * 1000;
+}
+
+/** Minimum active players required before the host can assign roles. */
+export function minPlayersForLobby(impostorCount: number): number {
+  return Math.max(4, impostorCount + 2);
 }
 
 export function countPlayersUnseenRole(

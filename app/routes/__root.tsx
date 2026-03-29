@@ -11,6 +11,7 @@ const ShaderBackground = lazy(() =>
   import("@/components/shader-background").then((m) => ({ default: m.ShaderBackground }))
 );
 import { NotFoundPage, ErrorPage } from "@/components/error-pages";
+import { Toaster } from "@/components/ui/sonner";
 import { getSiteUrl } from "@/lib/site-url";
 import appCss from "@/styles/app.css?url";
 
@@ -107,6 +108,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
         </ClientOnly>
         <div className="noise-overlay" aria-hidden="true" />
         {children}
+        <Toaster />
         <Scripts />
       </body>
     </html>

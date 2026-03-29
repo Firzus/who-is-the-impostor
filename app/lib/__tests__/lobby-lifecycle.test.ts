@@ -1,10 +1,13 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import {
   LOBBY_TTL_HOURS,
+  DEFAULT_KICK_COOLDOWN_SECONDS,
   countPlayersUnseenRole,
+  getKickCooldownMs,
   getLobbyTtlMs,
   isLobbyStale,
   lobbyAgeCutoff,
+  minPlayersForLobby,
   shouldFinishLobbyAfterReveal,
 } from "@/lib/lobby-lifecycle";
 
@@ -51,6 +54,33 @@ describe("shouldFinishLobbyAfterReveal", () => {
         { hasSeenRole: true },
       ])
     ).toBe(true);
+  });
+});
+
+describe("minPlayersForLobby", () => {
+  it("uses at least 4 players and scales with impostor count", () => {
+    expect(minPlayersForLobby(1)).toBe(4);
+    expect(minPlayersForLobby(2)).toBe(4);
+    expect(minPlayersForLobby(3)).toBe(5);
+  });
+});
+
+describe("getKickCooldownMs", () => {
+  const prev = process.env.KICK_COOLDOWN_SECONDS;
+
+  afterEach(() => {
+    if (prev === undefined) delete process.env.KICK_COOLDOWN_SECONDS;
+    else process.env.KICK_COOLDOWN_SECONDS = prev;
+  });
+
+  it("defaults when env is unset", () => {
+    delete process.env.KICK_COOLDOWN_SECONDS;
+    expect(getKickCooldownMs()).toBe(DEFAULT_KICK_COOLDOWN_SECONDS * 1000);
+  });
+
+  it("parses KICK_COOLDOWN_SECONDS", () => {
+    process.env.KICK_COOLDOWN_SECONDS = "30";
+    expect(getKickCooldownMs()).toBe(30_000);
   });
 });
 

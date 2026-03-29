@@ -15,6 +15,13 @@
       "when": 1774751445593,
       "tag": "0001_dazzling_rumiko_fujikawa",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1774799526433,
+      "tag": "0002_kick_and_lobby_settings",
+      "breakpoints": true
     }
   ]
 }

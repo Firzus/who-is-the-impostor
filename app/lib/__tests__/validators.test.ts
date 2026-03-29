@@ -3,6 +3,8 @@ import {
   createLobbySchema,
   joinLobbySchema,
   assignRolesSchema,
+  kickPlayerSchema,
+  updateLobbySettingsSchema,
 } from "../validators";
 
 describe("createLobbySchema", () => {
@@ -89,5 +91,46 @@ describe("assignRolesSchema", () => {
       requesterId: "invalid",
     });
     expect(result.success).toBe(false);
+  });
+});
+
+describe("kickPlayerSchema", () => {
+  const base = {
+    lobbyId: "550e8400-e29b-41d4-a716-446655440000",
+    requesterId: "550e8400-e29b-41d4-a716-446655440001",
+    targetPlayerId: "550e8400-e29b-41d4-a716-446655440002",
+  };
+
+  it("accepts valid UUIDs", () => {
+    expect(kickPlayerSchema.safeParse(base).success).toBe(true);
+  });
+
+  it("rejects invalid targetPlayerId", () => {
+    expect(
+      kickPlayerSchema.safeParse({ ...base, targetPlayerId: "x" }).success
+    ).toBe(false);
+  });
+});
+
+describe("updateLobbySettingsSchema", () => {
+  const base = {
+    lobbyId: "550e8400-e29b-41d4-a716-446655440000",
+    requesterId: "550e8400-e29b-41d4-a716-446655440001",
+    impostorCount: 2,
+  };
+
+  it("accepts impostor count in range", () => {
+    expect(updateLobbySettingsSchema.safeParse(base).success).toBe(true);
+  });
+
+  it("rejects impostor count out of range", () => {
+    expect(
+      updateLobbySettingsSchema.safeParse({ ...base, impostorCount: 0 })
+        .success
+    ).toBe(false);
+    expect(
+      updateLobbySettingsSchema.safeParse({ ...base, impostorCount: 4 })
+        .success
+    ).toBe(false);
   });
 });

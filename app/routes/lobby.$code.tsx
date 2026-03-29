@@ -4,16 +4,23 @@ import {
   useMatch,
   useNavigate,
 } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { LobbyCard } from "@/components/lobby-card";
+import { LobbySettings } from "@/components/lobby-settings";
 import { useLobbyPolling } from "@/lib/ws-client";
 import { useLobbyStore } from "@/stores/lobby-store";
-import { assignRoles } from "@/server/functions/lobby";
+import { setLobbyFlashMessage } from "@/lib/lobby-flash";
+import { minPlayersForLobby } from "@/lib/lobby-lifecycle";
+import {
+  assignRoles,
+  kickPlayer,
+  updateLobbySettings,
+} from "@/server/functions/lobby";
 import { Copy, Users, Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/lobby/$code")({
@@ -30,6 +37,8 @@ function LobbyPage() {
   const store = useLobbyStore();
   const [assigning, setAssigning] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [settingsUpdating, setSettingsUpdating] = useState(false);
+  const [kickLoading, setKickLoading] = useState(false);
 
   const revealMatch = useMatch({
     from: "/lobby/$code/reveal",
@@ -37,16 +46,28 @@ function LobbyPage() {
   });
   const isRevealRoute = !!revealMatch;
 
-  useLobbyPolling(isRevealRoute ? "" : code);
+  const handleKickedFromLobby = useCallback(() => {
+    setLobbyFlashMessage("Vous avez été expulsé du lobby.");
+    useLobbyStore.getState().reset();
+    navigate({ to: "/" });
+  }, [navigate]);
+
+  useLobbyPolling(isRevealRoute ? "" : code, {
+    onKickedFromLobby: handleKickedFromLobby,
+  });
 
   const codeRef = useRef<HTMLDivElement>(null);
   const playersRef = useRef<HTMLDivElement>(null);
+  const settingsRef = useRef<HTMLDivElement>(null);
 
   const isHost = store.players.find(
     (p) => p.id === store.myPlayerId
   )?.isHost;
 
-  const canAssignRoles = isHost && store.players.length >= 4 && !assigning;
+  const impostorCount = store.lobby?.impostorCount ?? 1;
+  const minPlayers = minPlayersForLobby(impostorCount);
+  const canAssignRoles =
+    isHost && store.players.length >= minPlayers && !assigning;
 
   useEffect(() => {
     if (!isRevealRoute && store.rolesAssigned) {
@@ -57,6 +78,7 @@ function LobbyPage() {
   useEffect(() => {
     if (isRevealRoute) return;
     const codeEl = codeRef.current;
+    const settingsEl = settingsRef.current;
     const playersEl = playersRef.current;
     if (!codeEl || !playersEl) return;
 
@@ -65,13 +87,22 @@ function LobbyPage() {
       codeEl,
       { opacity: 0, y: -24 },
       { opacity: 1, y: 0, duration: 0.8 }
-    ).fromTo(
+    );
+    if (settingsEl && store.lobby) {
+      tl.fromTo(
+        settingsEl,
+        { opacity: 0, y: 16 },
+        { opacity: 1, y: 0, duration: 0.65 },
+        "-=0.45"
+      );
+    }
+    tl.fromTo(
       playersEl,
       { opacity: 0, y: 24 },
       { opacity: 1, y: 0, duration: 0.8 },
-      "-=0.3"
+      "-=0.35"
     );
-  }, [isRevealRoute]);
+  }, [isRevealRoute, store.lobby?.id]);
 
   const copyCode = async () => {
     await navigator.clipboard.writeText(code);
@@ -98,6 +129,48 @@ function LobbyPage() {
       store.setError(err.message ?? "Erreur lors de l'attribution");
     } finally {
       setAssigning(false);
+    }
+  };
+
+  const handleImpostorCountChange = async (count: number) => {
+    if (!store.lobby || !store.myPlayerId) return;
+    setSettingsUpdating(true);
+    store.setError(null);
+    try {
+      await updateLobbySettings({
+        data: {
+          lobbyId: store.lobby.id,
+          requesterId: store.myPlayerId,
+          impostorCount: count,
+        },
+      });
+      const current = useLobbyStore.getState().lobby;
+      if (current) {
+        useLobbyStore.getState().setLobby({ ...current, impostorCount: count });
+      }
+    } catch (err: any) {
+      store.setError(err.message ?? "Impossible de mettre à jour les paramètres");
+    } finally {
+      setSettingsUpdating(false);
+    }
+  };
+
+  const handleKickPlayer = async (targetPlayerId: string) => {
+    if (!store.lobby || !store.myPlayerId) return;
+    setKickLoading(true);
+    store.setError(null);
+    try {
+      await kickPlayer({
+        data: {
+          lobbyId: store.lobby.id,
+          requesterId: store.myPlayerId,
+          targetPlayerId,
+        },
+      });
+    } catch (err: any) {
+      store.setError(err.message ?? "Impossible d'expulser ce joueur");
+    } finally {
+      setKickLoading(false);
     }
   };
 
@@ -141,6 +214,18 @@ function LobbyPage() {
           <div className="h-px w-24 bg-linear-to-r from-transparent via-border to-transparent" />
         </div>
 
+        {store.lobby && (
+          <div ref={settingsRef} className="opacity-0">
+            <LobbySettings
+              impostorCount={impostorCount}
+              activePlayerCount={store.players.length}
+              isHost={!!isHost}
+              updating={settingsUpdating}
+              onImpostorCountChange={handleImpostorCountChange}
+            />
+          </div>
+        )}
+
         {/* Players list */}
         <Card ref={playersRef} className="opacity-0">
           <CardHeader className="flex flex-row items-center justify-between">
@@ -164,13 +249,17 @@ function LobbyPage() {
                   key={player.id}
                   player={player}
                   isMe={player.id === store.myPlayerId}
+                  showKick={!!isHost}
+                  onKick={handleKickPlayer}
+                  kickLoading={kickLoading}
                 />
               ))
             )}
 
-            {store.players.length > 0 && store.players.length < 4 && (
+            {store.players.length > 0 && store.players.length < minPlayers && (
               <p className="pt-3 text-center text-xs font-medium text-muted-foreground/70">
-                Il faut au moins 4 joueurs pour commencer
+                Il faut au moins {minPlayers} joueurs pour commencer (
+                {store.players.length}/{minPlayers})
               </p>
             )}
           </CardContent>
@@ -186,8 +275,8 @@ function LobbyPage() {
           >
             {assigning
               ? "Attribution en cours..."
-              : store.players.length < 4
-                ? `En attente de joueurs (${store.players.length}/4 min.)`
+              : store.players.length < minPlayers
+                ? `En attente de joueurs (${store.players.length}/${minPlayers} min.)`
                 : "Lancer l'attribution des rôles"}
           </Button>
         )}
