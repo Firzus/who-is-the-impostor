@@ -12,7 +12,10 @@ services:
       - pgdata:/var/lib/postgresql/data
 
   app:
-    build: .
+    build:
+      context: .
+      args:
+        VITE_SITE_URL: ${VITE_SITE_URL:-}
     restart: unless-stopped
     ports:
       - "3000:3000"

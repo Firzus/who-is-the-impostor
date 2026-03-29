@@ -10,6 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SitemapXmlRouteImport } from './routes/sitemap.xml'
+import { Route as RobotsTxtRouteImport } from './routes/robots.txt'
 import { Route as LobbyCodeRouteImport } from './routes/lobby.$code'
 import { Route as ApiHealthRouteImport } from './routes/api.health'
 import { Route as LobbyCodeRevealRouteImport } from './routes/lobby.$code.reveal'
@@ -17,6 +19,16 @@ import { Route as LobbyCodeRevealRouteImport } from './routes/lobby.$code.reveal
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapXmlRoute = SitemapXmlRouteImport.update({
+  id: '/sitemap/xml',
+  path: '/sitemap/xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RobotsTxtRoute = RobotsTxtRouteImport.update({
+  id: '/robots/txt',
+  path: '/robots/txt',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LobbyCodeRoute = LobbyCodeRouteImport.update({
@@ -39,12 +51,16 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api/health': typeof ApiHealthRoute
   '/lobby/$code': typeof LobbyCodeRouteWithChildren
+  '/robots/txt': typeof RobotsTxtRoute
+  '/sitemap/xml': typeof SitemapXmlRoute
   '/lobby/$code/reveal': typeof LobbyCodeRevealRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api/health': typeof ApiHealthRoute
   '/lobby/$code': typeof LobbyCodeRouteWithChildren
+  '/robots/txt': typeof RobotsTxtRoute
+  '/sitemap/xml': typeof SitemapXmlRoute
   '/lobby/$code/reveal': typeof LobbyCodeRevealRoute
 }
 export interface FileRoutesById {
@@ -52,20 +68,43 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/api/health': typeof ApiHealthRoute
   '/lobby/$code': typeof LobbyCodeRouteWithChildren
+  '/robots/txt': typeof RobotsTxtRoute
+  '/sitemap/xml': typeof SitemapXmlRoute
   '/lobby/$code/reveal': typeof LobbyCodeRevealRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/health' | '/lobby/$code' | '/lobby/$code/reveal'
+  fullPaths:
+    | '/'
+    | '/api/health'
+    | '/lobby/$code'
+    | '/robots/txt'
+    | '/sitemap/xml'
+    | '/lobby/$code/reveal'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/health' | '/lobby/$code' | '/lobby/$code/reveal'
-  id: '__root__' | '/' | '/api/health' | '/lobby/$code' | '/lobby/$code/reveal'
+  to:
+    | '/'
+    | '/api/health'
+    | '/lobby/$code'
+    | '/robots/txt'
+    | '/sitemap/xml'
+    | '/lobby/$code/reveal'
+  id:
+    | '__root__'
+    | '/'
+    | '/api/health'
+    | '/lobby/$code'
+    | '/robots/txt'
+    | '/sitemap/xml'
+    | '/lobby/$code/reveal'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiHealthRoute: typeof ApiHealthRoute
   LobbyCodeRoute: typeof LobbyCodeRouteWithChildren
+  RobotsTxtRoute: typeof RobotsTxtRoute
+  SitemapXmlRoute: typeof SitemapXmlRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -75,6 +114,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap/xml': {
+      id: '/sitemap/xml'
+      path: '/sitemap/xml'
+      fullPath: '/sitemap/xml'
+      preLoaderRoute: typeof SitemapXmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/robots/txt': {
+      id: '/robots/txt'
+      path: '/robots/txt'
+      fullPath: '/robots/txt'
+      preLoaderRoute: typeof RobotsTxtRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lobby/$code': {
@@ -117,6 +170,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiHealthRoute: ApiHealthRoute,
   LobbyCodeRoute: LobbyCodeRouteWithChildren,
+  RobotsTxtRoute: RobotsTxtRoute,
+  SitemapXmlRoute: SitemapXmlRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
-import gsap from "gsap";
 import { CreateLobbyDialog } from "@/components/create-lobby-dialog";
 import { JoinLobbyDialog } from "@/components/join-lobby-dialog";
 import {
@@ -23,40 +22,51 @@ function LandingPage() {
   const footerTagRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+    let cancelled = false;
+    let tl: { kill: () => void } | null = null;
 
-    tl.fromTo(
-      titleRef.current,
-      { opacity: 0, y: 60, scale: 0.95 },
-      { opacity: 1, y: 0, scale: 1, duration: 1.4 }
-    )
-      .fromTo(
-        subtitleRef.current,
-        { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 1 },
-        "-=0.6"
-      )
-      .fromTo(
-        ctaRef.current,
-        { opacity: 0, y: 24 },
-        { opacity: 1, y: 0, duration: 0.8 },
-        "-=0.5"
-      )
-      .fromTo(
-        footerTagRef.current,
-        { opacity: 0 },
-        { opacity: 1, duration: 0.6 },
-        "-=0.3"
-      );
+    void import("gsap").then(({ default: gsap }) => {
+      if (cancelled) return;
+
+      const timeline = gsap.timeline({ defaults: { ease: "power3.out" } });
+
+      timeline
+        .fromTo(
+          titleRef.current,
+          { opacity: 0, y: 60, scale: 0.95 },
+          { opacity: 1, y: 0, scale: 1, duration: 1.4 }
+        )
+        .fromTo(
+          subtitleRef.current,
+          { opacity: 0, y: 30 },
+          { opacity: 1, y: 0, duration: 1 },
+          "-=0.6"
+        )
+        .fromTo(
+          ctaRef.current,
+          { opacity: 0, y: 24 },
+          { opacity: 1, y: 0, duration: 0.8 },
+          "-=0.5"
+        )
+        .fromTo(
+          footerTagRef.current,
+          { opacity: 0 },
+          { opacity: 1, duration: 0.6 },
+          "-=0.3"
+        );
+
+      tl = timeline;
+    });
 
     return () => {
-      tl.kill();
+      cancelled = true;
+      tl?.kill();
     };
   }, []);
 
   return (
     <div className="flex flex-col items-center">
-      <section className="flex min-h-screen w-full flex-col items-center justify-center px-4 py-8">
+      <main className="flex min-h-screen w-full flex-col items-center justify-center px-4 py-8">
         <div className="flex w-full max-w-2xl flex-1 flex-col items-center justify-center">
           <div className="flex flex-col items-center gap-8 text-center">
             <div ref={titleRef} className="w-full opacity-0">
@@ -81,7 +91,7 @@ function LandingPage() {
             {"Qui est l'imposteur — jeu communautaire Dofus"}
           </p>
         </div>
-      </section>
+      </main>
 
       <CreateLobbyDialog open={showCreate} onOpenChange={setShowCreate} />
       <JoinLobbyDialog open={showJoin} onOpenChange={setShowJoin} />

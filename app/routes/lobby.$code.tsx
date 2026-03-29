@@ -17,6 +17,10 @@ import { assignRoles } from "@/server/functions/lobby";
 import { Copy, Users, Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/lobby/$code")({
+  head: () => ({
+    title: "Partie — Qui est l'imposteur",
+    meta: [{ name: "robots", content: "noindex, nofollow" }],
+  }),
   component: LobbyPage,
 });
 

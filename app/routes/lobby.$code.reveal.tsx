@@ -8,6 +8,10 @@ import { getPlayerRole } from "@/server/functions/lobby";
 import { Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/lobby/$code/reveal")({
+  head: () => ({
+    title: "Rôle — Qui est l'imposteur",
+    meta: [{ name: "robots", content: "noindex, nofollow" }],
+  }),
   component: RevealPage,
 });
 

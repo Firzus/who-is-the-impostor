@@ -1,5 +1,4 @@
 import { useEffect, useRef, useCallback } from "react";
-import gsap from "gsap";
 
 const VERT_SOURCE = `
 attribute vec2 aPosition;
@@ -215,7 +214,7 @@ function compileShader(gl: WebGLRenderingContext, type: number, source: string):
 export function ShaderBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mouseRef = useRef({ x: 0, y: 0 });
-  const timeRef = useRef({ value: 0 });
+  const startTimeRef = useRef(0);
   const rafRef = useRef<number>(0);
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
@@ -272,15 +271,10 @@ export function ShaderBackground() {
     window.addEventListener("resize", resize);
     window.addEventListener("mousemove", handleMouseMove);
 
-    gsap.to(timeRef.current, {
-      value: 1000,
-      duration: 1000,
-      ease: "none",
-      repeat: -1,
-    });
+    startTimeRef.current = performance.now();
 
     const render = () => {
-      gl.uniform1f(uTime, timeRef.current.value);
+      gl.uniform1f(uTime, (performance.now() - startTimeRef.current) / 1000);
       gl.uniform2f(uResolution, canvas.width, canvas.height);
       gl.uniform2f(uMouse, mouseRef.current.x, window.innerHeight - mouseRef.current.y);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);

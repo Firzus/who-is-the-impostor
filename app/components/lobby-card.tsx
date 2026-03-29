@@ -15,7 +15,7 @@ export function LobbyCard({ player, isMe }: LobbyCardProps) {
       className={cn(
         "group flex items-center gap-3 border p-3 transition-all duration-200",
         isMe
-          ? "border-[#50C878]/15 bg-[#50C878]/[0.03] glow-emerald"
+          ? "border-[#50C878]/15 bg-[#50C878]/3 glow-emerald"
           : "border-border/40 bg-card/30 hover:border-border/60 hover:bg-card/50"
       )}
     >
