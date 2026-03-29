@@ -37,12 +37,12 @@ const ROLE_CONFIGS: Record<string, ParticleConfig> = {
   },
   aventurier: {
     colors: [
-      "rgba(52, 211, 153, 1)",
-      "rgba(110, 231, 183, 1)",
-      "rgba(16, 185, 129, 1)",
-      "rgba(52, 255, 180, 0.9)",
-      "rgba(180, 255, 220, 0.8)",
-      "rgba(6, 150, 100, 0.7)",
+      "rgba(212, 160, 23, 1)",
+      "rgba(245, 208, 96, 1)",
+      "rgba(184, 134, 11, 1)",
+      "rgba(255, 220, 80, 0.9)",
+      "rgba(255, 240, 160, 0.8)",
+      "rgba(160, 120, 10, 0.7)",
     ],
     count: 140,
     spread: 12,

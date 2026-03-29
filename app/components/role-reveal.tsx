@@ -1,6 +1,5 @@
 import { type MouseEvent, useRef, useEffect, useState } from "react";
 import gsap from "gsap";
-import { Sword, Skull } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   createHolographicBackground,
@@ -8,6 +7,8 @@ import {
   isRoleCardHoverEnabled,
 } from "@/lib/role-card-effects";
 import { burstParticles } from "@/lib/reveal-particles";
+import { SkullIcon } from "@/components/icons/skull-icon";
+import { SwordIcon } from "@/components/icons/sword-icon";
 
 interface RoleRevealProps {
   role: string;
@@ -41,8 +42,8 @@ export function RoleReveal({ role, playerName, onConfirm }: RoleRevealProps) {
     const flash = flashRef.current;
     if (!flash) return;
     flash.style.background = isImpostor
-      ? "radial-gradient(circle, rgba(244,63,94,0.4), rgba(244,63,94,0) 70%)"
-      : "radial-gradient(circle, rgba(52,211,153,0.4), rgba(52,211,153,0) 70%)";
+      ? "radial-gradient(circle, rgba(224,64,64,0.35), rgba(224,64,64,0) 70%)"
+      : "radial-gradient(circle, rgba(212,160,23,0.35), rgba(212,160,23,0) 70%)";
     gsap.fromTo(flash, { opacity: 0 }, {
       opacity: 1,
       duration: 0.15,
@@ -118,13 +119,12 @@ export function RoleReveal({ role, playerName, onConfirm }: RoleRevealProps) {
       )
       .call(() => setHoverEnabled(true));
 
-    const cardEl = card;
-    tl.fromTo(cardEl,
+    tl.fromTo(card,
       { boxShadow: "0 0 0 rgba(0,0,0,0)" },
       {
         boxShadow: isImpostor
-          ? "0 0 60px rgba(244,63,94,0.3), 0 0 120px rgba(244,63,94,0.15)"
-          : "0 0 60px rgba(52,211,153,0.3), 0 0 120px rgba(16,185,129,0.15)",
+          ? "0 0 60px rgba(224,64,64,0.25), 0 0 120px rgba(224,64,64,0.1)"
+          : "0 0 60px rgba(212,160,23,0.25), 0 0 120px rgba(212,160,23,0.1)",
         duration: 0.5,
         ease: "power2.out",
       },
@@ -202,7 +202,7 @@ export function RoleReveal({ role, playerName, onConfirm }: RoleRevealProps) {
         aria-hidden
       />
 
-      <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+      <p className="font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground/50">
         {playerName}
       </p>
 
@@ -221,70 +221,78 @@ export function RoleReveal({ role, playerName, onConfirm }: RoleRevealProps) {
         >
           <div
             ref={cardRef}
-            className="relative h-full w-full rounded-(--radius)"
+            className="relative h-full w-full"
             style={{ transformStyle: "preserve-3d" }}
           >
             {/* Front face */}
             <div
-              className="absolute inset-0 flex flex-col items-center justify-center rounded-(--radius) border border-border bg-surface overflow-hidden"
+              className="absolute inset-0 flex flex-col items-center justify-center border border-border/60 bg-black overflow-hidden"
               style={{ backfaceVisibility: "hidden" }}
             >
-              <div className="absolute inset-0 grid-bg opacity-50" />
+              <div className="absolute inset-0 grid-bg opacity-40" />
               <div className="absolute inset-0 radial-fade" />
 
               <div className="relative z-10 flex flex-col items-center gap-4">
                 <div className="relative">
-                  <div className="h-16 w-16 rounded-full border border-primary/20 flex items-center justify-center">
-                    <span className="font-display text-4xl text-primary">?</span>
+                  <div className="h-16 w-16 border border-[#50C878]/20 flex items-center justify-center">
+                    <span className="font-display text-4xl text-[#50C878]/80">?</span>
                   </div>
-                  <div className="absolute -inset-2 rounded-full border border-primary/10 animate-ping" style={{ animationDuration: "2s" }} />
+                  <div className="absolute -inset-2 border border-[#50C878]/10 animate-ping" style={{ animationDuration: "2s" }} />
                 </div>
-                <p className="text-xs text-muted-foreground tracking-wider">
+                <p className="text-xs text-muted-foreground/60 tracking-wider">
                   Clique pour révéler
                 </p>
               </div>
 
-              <div className="absolute inset-3 rounded-lg border border-border/50 pointer-events-none" />
+              <div className="absolute inset-3 border border-white/2 pointer-events-none" />
             </div>
 
             {/* Back face */}
             <div
               ref={backRef}
-              className={`absolute inset-0 flex flex-col items-center justify-center rounded-(--radius) border-2 overflow-hidden ${isImpostor
-                ? "border-impostor/30 bg-gradient-to-b from-surface via-[#1a0a0e] to-impostor/5"
-                : "border-aventurier/30 bg-gradient-to-b from-surface via-[#0a1a12] to-aventurier/5"
+              className={`absolute inset-0 flex flex-col items-center justify-center border-2 overflow-hidden ${isImpostor
+                ? "border-[#e04040]/25 bg-linear-to-b from-black via-[#1a0808] to-[#e04040]/5"
+                : "border-[#D4A017]/25 bg-linear-to-b from-black via-[#1a1508] to-[#D4A017]/5"
                 }`}
               style={{ backfaceVisibility: "hidden" }}
             >
               <div
                 ref={holographicRef}
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-0 rounded-[inherit] opacity-0 mix-blend-screen"
+                className="card-holographic"
               />
               <div className="role-content flex flex-col items-center opacity-0 relative z-10">
                 <div className="relative mb-6">
                   {isImpostor ? (
-                    <Skull className="h-20 w-20 text-impostor drop-shadow-[0_0_30px_rgba(244,63,94,0.5)]" />
+                    <SkullIcon className="h-20 w-20 text-[#e04040]" />
                   ) : (
-                    <Sword className="h-20 w-20 text-aventurier drop-shadow-[0_0_30px_rgba(52,211,153,0.5)]" />
+                    <SwordIcon className="h-20 w-20 text-[#D4A017]" />
                   )}
+                  <div
+                    className="absolute inset-0 blur-2xl animate-pulse-glow"
+                    style={{
+                      background: isImpostor
+                        ? "rgba(224,64,64,0.2)"
+                        : "rgba(212,160,23,0.2)",
+                    }}
+                  />
                 </div>
 
                 <h2
-                  className={`mb-2 font-display text-3xl font-bold tracking-tight ${isImpostor ? "text-gradient-impostor" : "text-gradient-green"
+                  className={`mb-2 font-display text-3xl font-bold tracking-tight uppercase ${isImpostor ? "text-gradient-impostor" : "text-gradient-aventurier"
                     }`}
                 >
                   {role.charAt(0).toUpperCase() + role.slice(1)}
                 </h2>
 
-                <p className="text-center text-sm text-muted-foreground">
+                <p className="text-center text-sm text-muted-foreground/50">
                   {isImpostor
                     ? "Sabote le donjon en secret..."
                     : "Termine le donjon avec ta team !"}
                 </p>
               </div>
 
-              <div className="pointer-events-none absolute inset-3 rounded-lg border border-white/[0.03]" />
+              <div className="pointer-events-none absolute inset-3 border border-white/2" />
             </div>
           </div>
         </div>
@@ -292,7 +300,7 @@ export function RoleReveal({ role, playerName, onConfirm }: RoleRevealProps) {
 
       {revealed && (
         <div className="flex flex-col items-center gap-5">
-          <p className="max-w-xs text-center text-sm text-muted-foreground">
+          <p className="max-w-xs text-center text-sm text-muted-foreground/50">
             {isImpostor
               ? "Fais perdre la team sans te faire repérer..."
               : "Méfie-toi, un imposteur rôde parmi vous."}

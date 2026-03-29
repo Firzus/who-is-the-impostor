@@ -13,16 +13,16 @@ export function LobbyCard({ player, isMe }: LobbyCardProps) {
   return (
     <div
       className={cn(
-        "group flex items-center gap-3 rounded-(--radius) border p-3 transition-all duration-200",
+        "group flex items-center gap-3 border p-3 transition-all duration-200",
         isMe
-          ? "border-primary/20 bg-primary/5 glow-gold"
-          : "border-border/50 bg-card/40 hover:border-border hover:bg-card/60"
+          ? "border-[#50C878]/15 bg-[#50C878]/[0.03] glow-emerald"
+          : "border-border/40 bg-card/30 hover:border-border/60 hover:bg-card/50"
       )}
     >
       <Avatar className="h-9 w-9">
         <AvatarFallback>
           {player.isHost ? (
-            <Crown className="h-4 w-4 text-primary" />
+            <Crown className="h-4 w-4 text-[#50C878]" />
           ) : (
             <User className="h-4 w-4 text-muted-foreground" />
           )}
@@ -30,17 +30,17 @@ export function LobbyCard({ player, isMe }: LobbyCardProps) {
       </Avatar>
 
       <div className="flex-1">
-        <span className="text-sm font-medium text-foreground">{player.name}</span>
+        <span className="text-sm font-semibold text-foreground">{player.name}</span>
       </div>
 
       <div className="flex gap-2">
         {player.isHost && (
-          <Badge variant="default" className="text-[10px] uppercase tracking-wider">
+          <Badge variant="default" className="text-[10px] font-bold uppercase tracking-wider">
             Hôte
           </Badge>
         )}
         {isMe && (
-          <Badge variant="outline" className="text-[10px] uppercase tracking-wider">
+          <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-wider">
             Toi
           </Badge>
         )}

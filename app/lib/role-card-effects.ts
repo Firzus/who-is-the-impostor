@@ -51,7 +51,7 @@ export function getCardHoverState(input: CardPointerInput) {
 export function createHolographicBackground(input: CardPointerInput) {
   const { glareX, glareY } = getCardHoverState(input);
 
-  return `radial-gradient(circle at ${glareX}% ${glareY}%, rgba(52,211,153,0.2), rgba(16,185,129,0.08) 25%, rgba(52,211,153,0) 50%), linear-gradient(135deg, rgba(52, 211, 153, 0.08), rgba(16, 185, 129, 0.06), rgba(110, 231, 183, 0.04), rgba(6, 150, 100, 0.06))`;
+  return `radial-gradient(circle at ${glareX}% ${glareY}%, rgba(212,160,23,0.2), rgba(184,134,11,0.08) 25%, rgba(212,160,23,0) 50%), linear-gradient(135deg, rgba(212,160,23,0.08), rgba(184,134,11,0.06), rgba(245,208,96,0.04), rgba(160,120,10,0.06))`;
 }
 
 export function isRoleCardHoverEnabled({

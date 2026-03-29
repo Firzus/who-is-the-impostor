@@ -26,7 +26,7 @@ describe("LandingActions", () => {
     expect(markup).toContain("Créer une partie");
     expect(markup).toContain("Rejoindre par code");
     expect(markup).not.toContain("3 joueurs minimum");
-    expect(markup).toContain("bg-primary");
-    expect(markup).toContain("border-primary/20");
+    expect(markup).toContain("bg-[#50C878]");
+    expect(markup).toContain("border-[#50C878]/30");
   });
 });
