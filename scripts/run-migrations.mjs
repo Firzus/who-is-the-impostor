@@ -20,7 +20,7 @@ if (!url) {
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const migrationsFolder = path.join(__dirname, "..", "drizzle");
 
-const client = postgres(url, { max: 1 });
+const client = postgres(url, { max: 1, onnotice: () => {} });
 const db = drizzle(client);
 
 try {
