@@ -70,6 +70,39 @@ function pickColor(colors: string[], maxIndex?: number): string {
   return colors[Math.floor(Math.random() * n)];
 }
 
+// ─── Glow sprite cache ──────────────────────────────────────────
+
+const glowCache = new Map<string, HTMLCanvasElement>();
+
+function getGlowSprite(color: string, radius: number): HTMLCanvasElement {
+  const key = `${color}_${radius}`;
+  let cached = glowCache.get(key);
+  if (cached) return cached;
+
+  cached = document.createElement("canvas");
+  const size = radius * 2;
+  cached.width = size;
+  cached.height = size;
+  const gCtx = cached.getContext("2d")!;
+  const g = gCtx.createRadialGradient(radius, radius, 0, radius, radius, radius);
+  g.addColorStop(0, color);
+  g.addColorStop(1, "rgba(0,0,0,0)");
+  gCtx.fillStyle = g;
+  gCtx.fillRect(0, 0, size, size);
+  glowCache.set(key, cached);
+  return cached;
+}
+
+function getGlowRadius(p: Particle): number {
+  switch (p.shape) {
+    case "dot": return Math.min(p.size * 6, 25);
+    case "ember": return Math.min(p.size * 5, 20);
+    case "spark": return Math.min(p.size * 8, 25);
+    case "shard": return Math.min(p.size * 5, 20);
+    case "flare": return Math.min(p.size * 10, 50);
+  }
+}
+
 // ─── Particle factories ─────────────────────────────────────────
 
 function createBurst(cx: number, cy: number, cfg: ParticleConfig): Particle {
@@ -126,36 +159,41 @@ function createFlare(cx: number, cy: number, cfg: ParticleConfig): Particle {
 
 // ─── Draw helpers ────────────────────────────────────────────────
 
+let currentDpr = 1;
+
 function drawParticle(ctx: CanvasRenderingContext2D, p: Particle) {
   const fadeIn = Math.min(p.life / 3, 1);
   const fadeOut = Math.max(1 - p.life / p.maxLife, 0);
   const alpha = p.opacity * fadeIn * fadeOut;
   if (alpha < 0.01) return;
 
-  ctx.save();
+  // Draw glow sprite (replaces shadowBlur)
+  const glowRadius = getGlowRadius(p);
+  if (glowRadius > 0) {
+    ctx.globalAlpha = alpha * (p.shape === "flare" ? 0.5 : 0.7);
+    const sprite = getGlowSprite(p.color, Math.ceil(glowRadius));
+    ctx.drawImage(sprite, p.x - glowRadius, p.y - glowRadius, glowRadius * 2, glowRadius * 2);
+  }
+
   ctx.globalAlpha = alpha;
-  ctx.translate(p.x, p.y);
+  ctx.setTransform(currentDpr, 0, 0, currentDpr, p.x * currentDpr, p.y * currentDpr);
   ctx.rotate((p.rotation * Math.PI) / 180);
   ctx.fillStyle = p.color;
-  ctx.shadowColor = p.color;
 
   switch (p.shape) {
     case "dot":
-      ctx.shadowBlur = Math.min(p.size * 6, 25);
       ctx.beginPath();
       ctx.arc(0, 0, p.size, 0, Math.PI * 2);
       ctx.fill();
       break;
 
     case "ember":
-      ctx.shadowBlur = Math.min(p.size * 5, 20);
       ctx.beginPath();
       ctx.ellipse(0, 0, p.size * 0.45, p.size * 1.2, 0, 0, Math.PI * 2);
       ctx.fill();
       break;
 
     case "spark": {
-      ctx.shadowBlur = Math.min(p.size * 8, 25);
       const s = p.size;
       ctx.beginPath();
       ctx.moveTo(0, -s * 2);
@@ -172,7 +210,6 @@ function drawParticle(ctx: CanvasRenderingContext2D, p: Particle) {
     }
 
     case "shard":
-      ctx.shadowBlur = Math.min(p.size * 5, 20);
       ctx.beginPath();
       ctx.moveTo(0, -p.size * 1.4);
       ctx.lineTo(p.size * 0.35, 0);
@@ -183,20 +220,14 @@ function drawParticle(ctx: CanvasRenderingContext2D, p: Particle) {
       break;
 
     case "flare":
-      ctx.shadowBlur = Math.min(p.size * 10, 50);
-      ctx.globalAlpha = alpha * 0.5;
-      ctx.beginPath();
-      ctx.arc(0, 0, p.size, 0, Math.PI * 2);
-      ctx.fill();
       ctx.globalAlpha = alpha;
-      ctx.shadowBlur = 0;
       ctx.beginPath();
       ctx.arc(0, 0, p.size * 0.25, 0, Math.PI * 2);
       ctx.fill();
       break;
   }
 
-  ctx.restore();
+  ctx.setTransform(currentDpr, 0, 0, currentDpr, 0, 0);
 }
 
 function drawShockwave(
@@ -209,16 +240,12 @@ function drawShockwave(
   const alpha = (1 - progress) * sw.opacity;
   if (alpha < 0.01) return;
 
-  ctx.save();
   ctx.globalAlpha = alpha;
   ctx.strokeStyle = sw.color;
-  ctx.lineWidth = sw.lineWidth * (1 - progress * 0.6);
-  ctx.shadowBlur = 12;
-  ctx.shadowColor = sw.color;
+  ctx.lineWidth = sw.lineWidth * (1 - progress * 0.6) + 2;
   ctx.beginPath();
   ctx.arc(cx, cy, sw.radius, 0, Math.PI * 2);
   ctx.stroke();
-  ctx.restore();
 }
 
 function drawGodRays(
@@ -238,6 +265,13 @@ function drawGodRays(
   ctx.translate(cx, cy);
   ctx.rotate(frame * 0.004);
 
+  // Create gradient ONCE per frame (shared by all rays)
+  const g = ctx.createRadialGradient(0, 0, 0, 0, 0, reach);
+  g.addColorStop(0, hexRgba(cfg.glowColor, base));
+  g.addColorStop(0.35, hexRgba(cfg.glowColor, base * 0.35));
+  g.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = g;
+
   for (let i = 0; i < cfg.rayCount; i++) {
     const angle = (i / cfg.rayCount) * Math.PI * 2;
     const width = 0.1 + Math.sin(frame * 0.04 + i * 1.3) * 0.025;
@@ -246,12 +280,6 @@ function drawGodRays(
     ctx.moveTo(0, 0);
     ctx.arc(0, 0, reach, angle - width / 2, angle + width / 2);
     ctx.closePath();
-
-    const g = ctx.createRadialGradient(0, 0, 0, 0, 0, reach);
-    g.addColorStop(0, hexRgba(cfg.glowColor, base));
-    g.addColorStop(0.35, hexRgba(cfg.glowColor, base * 0.35));
-    g.addColorStop(1, "rgba(0,0,0,0)");
-    ctx.fillStyle = g;
     ctx.fill();
   }
 
@@ -289,11 +317,15 @@ export function burstParticles(
   canvas: HTMLCanvasElement,
   role: string,
 ): () => void {
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (prefersReducedMotion) return () => {};
+
   const cfg = ROLE_CONFIGS[role] ?? ROLE_CONFIGS.aventurier;
   const ctx = canvas.getContext("2d");
   if (!ctx) return () => {};
 
   const dpr = window.devicePixelRatio || 1;
+  currentDpr = dpr;
   const rect = canvas.getBoundingClientRect();
   canvas.width = rect.width * dpr;
   canvas.height = rect.height * dpr;
@@ -376,16 +408,20 @@ export function burstParticles(
     // Layer 2 – god rays
     drawGodRays(ctx!, cx, cy, frame, cfg, maxDim * 0.55);
 
-    // Layer 3 – shockwaves
-    for (let i = shockwaves.length - 1; i >= 0; i--) {
+    // Layer 3 – shockwaves (swap-and-pop removal)
+    for (let i = 0; i < shockwaves.length; i++) {
       const sw = shockwaves[i];
       sw.radius += sw.speed;
       drawShockwave(ctx!, sw, cx, cy);
-      if (sw.radius >= sw.maxRadius) shockwaves.splice(i, 1);
+      if (sw.radius >= sw.maxRadius) {
+        shockwaves[i] = shockwaves[shockwaves.length - 1];
+        shockwaves.length--;
+        i--;
+      }
     }
 
-    // Layer 4 – particles
-    for (let i = particles.length - 1; i >= 0; i--) {
+    // Layer 4 – particles (swap-and-pop removal)
+    for (let i = 0; i < particles.length; i++) {
       const p = particles[i];
       p.x += p.vx;
       p.y += p.vy;
@@ -411,7 +447,9 @@ export function burstParticles(
       p.life++;
 
       if (p.opacity <= 0 || p.life > p.maxLife) {
-        particles.splice(i, 1);
+        particles[i] = particles[particles.length - 1];
+        particles.length--;
+        i--;
         continue;
       }
 

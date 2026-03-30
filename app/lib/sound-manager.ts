@@ -69,7 +69,7 @@ export function playSound(
 
   const buffer = bufferCache.get(id);
   if (buffer) {
-    playBuffer(ctx, buffer, opts?.volume ?? 0.5);
+    playBuffer(ctx, buffer, opts?.volume ?? 0.25);
   }
 }
 

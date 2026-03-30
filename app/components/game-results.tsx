@@ -54,21 +54,19 @@ export function GameResults({
 
   useEffect(() => {
     if (!cardsRef.current) return;
-    const cards = cardsRef.current.querySelectorAll(".result-card");
-    cards.forEach((card, i) => {
-      gsap.fromTo(
-        card,
-        { opacity: 0, rotateY: 90, scale: 0.8 },
-        {
-          opacity: 1,
-          rotateY: 0,
-          scale: 1,
-          duration: 0.5,
-          ease: "back.out(1.5)",
-          delay: 0.5 + i * 0.3,
-        }
-      );
-    });
+    gsap.fromTo(
+      cardsRef.current.querySelectorAll(".result-card"),
+      { opacity: 0, rotateY: 90, scale: 0.8 },
+      {
+        opacity: 1,
+        rotateY: 0,
+        scale: 1,
+        duration: 0.5,
+        ease: "back.out(1.5)",
+        delay: 0.5,
+        stagger: 0.3,
+      }
+    );
   }, [players]);
 
   const impostors = players.filter((p) => p.role === "imposteur");
