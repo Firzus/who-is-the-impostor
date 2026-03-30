@@ -23,6 +23,8 @@ export const Route = createFileRoute("/api/lobby/$code/events")({
 
         const stream = new ReadableStream({
           async start(controller) {
+            let lastHash = "";
+
             const send = (event: string, data: unknown) => {
               if (closed) return;
               try {
@@ -66,10 +68,12 @@ export const Route = createFileRoute("/api/lobby/$code/events")({
                     )
                   );
 
-                send("lobby", {
-                  lobby: currentLobby,
-                  players: lobbyPlayers,
-                });
+                const payload = { lobby: currentLobby, players: lobbyPlayers };
+                const hash = JSON.stringify(payload);
+                if (hash !== lastHash) {
+                  lastHash = hash;
+                  send("lobby", payload);
+                }
               } catch {
                 // silently continue on transient DB errors
               }

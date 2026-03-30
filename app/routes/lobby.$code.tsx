@@ -5,7 +5,7 @@ import {
   useNavigate,
 } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import gsap from "gsap";
+import { getGsap } from "@/lib/gsap";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -49,7 +49,10 @@ export const Route = createFileRoute("/lobby/$code")({
 function LobbyPage() {
   const { code } = Route.useParams();
   const navigate = useNavigate();
-  const store = useLobbyStore();
+  const lobby = useLobbyStore((s) => s.lobby);
+  const storePlayers = useLobbyStore((s) => s.players);
+  const myPlayerId = useLobbyStore((s) => s.myPlayerId);
+  const rolesAssigned = useLobbyStore((s) => s.rolesAssigned);
   const [assigning, setAssigning] = useState(false);
   const [copied, setCopied] = useState(false);
   const [settingsUpdating, setSettingsUpdating] = useState(false);
@@ -82,37 +85,39 @@ function LobbyPage() {
   const playersRef = useRef<HTMLDivElement>(null);
   const settingsRef = useRef<HTMLDivElement>(null);
   const badgeRef = useRef<HTMLSpanElement>(null);
-  const prevPlayerCount = useRef(store.players.length);
+  const prevPlayerCount = useRef(storePlayers.length);
 
   useEffect(() => {
-    const count = store.players.length;
+    const count = storePlayers.length;
     if (count !== prevPlayerCount.current && prevPlayerCount.current > 0) {
       const el = badgeRef.current;
       if (el) {
-        gsap.fromTo(
-          el,
-          { scale: 1.3 },
-          { scale: 1, duration: 0.4, ease: "back.out(2)" }
+        void getGsap().then((gsap) =>
+          gsap.fromTo(
+            el,
+            { scale: 1.3 },
+            { scale: 1, duration: 0.4, ease: "back.out(2)" }
+          )
         );
       }
     }
     prevPlayerCount.current = count;
-  }, [store.players.length]);
+  }, [storePlayers.length]);
 
-  const isHost = store.players.find(
-    (p) => p.id === store.myPlayerId
+  const isHost = storePlayers.find(
+    (p) => p.id === myPlayerId
   )?.isHost;
 
-  const impostorCount = store.lobby?.impostorCount ?? 1;
+  const impostorCount = lobby?.impostorCount ?? 1;
   const minPlayers = minPlayersForLobby(impostorCount);
   const canAssignRoles =
-    isHost && store.players.length >= minPlayers && !assigning;
+    isHost && storePlayers.length >= minPlayers && !assigning;
 
   useEffect(() => {
-    if (!isRevealRoute && store.rolesAssigned) {
+    if (!isRevealRoute && rolesAssigned) {
       navigate({ to: "/lobby/$code/reveal", params: { code } });
     }
-  }, [store.rolesAssigned, navigate, code, isRevealRoute]);
+  }, [rolesAssigned, navigate, code, isRevealRoute]);
 
   useEffect(() => {
     if (isRevealRoute) return;
@@ -124,27 +129,29 @@ function LobbyPage() {
     const clearOpacity = (el: HTMLElement | null) => () =>
       el?.classList.remove("opacity-0");
 
-    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
-    tl.fromTo(
-      codeEl,
-      { opacity: 0, y: -24 },
-      { opacity: 1, y: 0, duration: 0.8, onComplete: clearOpacity(codeEl) }
-    );
-    if (settingsEl && store.lobby) {
+    void getGsap().then((gsap) => {
+      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
       tl.fromTo(
-        settingsEl,
-        { opacity: 0, y: 16 },
-        { opacity: 1, y: 0, duration: 0.65, onComplete: clearOpacity(settingsEl) },
-        "-=0.45"
+        codeEl,
+        { opacity: 0, y: -24 },
+        { opacity: 1, y: 0, duration: 0.8, onComplete: clearOpacity(codeEl) }
       );
-    }
-    tl.fromTo(
-      playersEl,
-      { opacity: 0, y: 24 },
-      { opacity: 1, y: 0, duration: 0.8, onComplete: clearOpacity(playersEl) },
-      "-=0.35"
-    );
-  }, [isRevealRoute, store.lobby?.id]);
+      if (settingsEl && lobby) {
+        tl.fromTo(
+          settingsEl,
+          { opacity: 0, y: 16 },
+          { opacity: 1, y: 0, duration: 0.65, onComplete: clearOpacity(settingsEl) },
+          "-=0.45"
+        );
+      }
+      tl.fromTo(
+        playersEl,
+        { opacity: 0, y: 24 },
+        { opacity: 1, y: 0, duration: 0.8, onComplete: clearOpacity(playersEl) },
+        "-=0.35"
+      );
+    });
+  }, [isRevealRoute, lobby?.id]);
 
   const copyCode = async () => {
     await navigator.clipboard.writeText(code);
@@ -153,19 +160,19 @@ function LobbyPage() {
   };
 
   const handleAssignRoles = async () => {
-    if (!store.lobby || !store.myPlayerId) return;
+    if (!lobby || !myPlayerId) return;
     setAssigning(true);
     try {
       await assignRoles({
         data: {
-          lobbyId: store.lobby.id,
-          requesterId: store.myPlayerId,
+          lobbyId: lobby.id,
+          requesterId: myPlayerId,
         },
       });
-      const { lobby, setLobby, setRolesAssigned } = useLobbyStore.getState();
-      if (lobby) {
-        setLobby({ ...lobby, status: "roles_assigned" });
-        setRolesAssigned(true);
+      const state = useLobbyStore.getState();
+      if (state.lobby) {
+        state.setLobby({ ...state.lobby, status: "roles_assigned" });
+        state.setRolesAssigned(true);
       }
     } catch (err: any) {
       toast.error(err.message ?? "Erreur lors de l'attribution");
@@ -175,13 +182,13 @@ function LobbyPage() {
   };
 
   const handleImpostorCountChange = async (count: number) => {
-    if (!store.lobby || !store.myPlayerId) return;
+    if (!lobby || !myPlayerId) return;
     setSettingsUpdating(true);
     try {
       await updateLobbySettings({
         data: {
-          lobbyId: store.lobby.id,
-          requesterId: store.myPlayerId,
+          lobbyId: lobby.id,
+          requesterId: myPlayerId,
           impostorCount: count,
         },
       });
@@ -196,14 +203,14 @@ function LobbyPage() {
     }
   };
 
-  const handleKickPlayer = async (targetPlayerId: string) => {
-    if (!store.lobby || !store.myPlayerId) return;
+  const handleKickPlayer = useCallback(async (targetPlayerId: string) => {
+    if (!lobby || !myPlayerId) return;
     setKickLoading(true);
     try {
       await kickPlayer({
         data: {
-          lobbyId: store.lobby.id,
-          requesterId: store.myPlayerId,
+          lobbyId: lobby.id,
+          requesterId: myPlayerId,
           targetPlayerId,
         },
       });
@@ -212,14 +219,14 @@ function LobbyPage() {
     } finally {
       setKickLoading(false);
     }
-  };
+  }, [lobby, myPlayerId]);
 
   const handleLeaveLobby = async () => {
-    if (!store.lobby || !store.myPlayerId) return;
+    if (!lobby || !myPlayerId) return;
     setLeaving(true);
     try {
       await leaveLobby({
-        data: { lobbyId: store.lobby.id, playerId: store.myPlayerId },
+        data: { lobbyId: lobby.id, playerId: myPlayerId },
       });
       useLobbyStore.getState().reset();
       navigate({ to: "/" });
@@ -231,14 +238,14 @@ function LobbyPage() {
     }
   };
 
-  const handleTransferHost = async (targetPlayerId: string) => {
-    if (!store.lobby || !store.myPlayerId) return;
+  const handleTransferHost = useCallback(async (targetPlayerId: string) => {
+    if (!lobby || !myPlayerId) return;
     setTransferLoading(true);
     try {
       await transferHost({
         data: {
-          lobbyId: store.lobby.id,
-          requesterId: store.myPlayerId,
+          lobbyId: lobby.id,
+          requesterId: myPlayerId,
           targetPlayerId,
         },
       });
@@ -248,7 +255,7 @@ function LobbyPage() {
     } finally {
       setTransferLoading(false);
     }
-  };
+  }, [lobby, myPlayerId]);
 
   if (isRevealRoute) {
     return <Outlet />;
@@ -260,7 +267,7 @@ function LobbyPage() {
         {/* Header: code + leave */}
         <div className="flex items-start justify-between">
           <div />
-          {mounted && store.myPlayerId && (
+          {mounted && myPlayerId && (
             <Button
               type="button"
               variant="ghost"
@@ -320,22 +327,22 @@ function LobbyPage() {
                 </CardTitle>
                 <span ref={badgeRef} className="inline-block">
                   <Badge variant="secondary">
-                    {store.players.length} joueur{store.players.length !== 1 ? "s" : ""}
+                    {storePlayers.length} joueur{storePlayers.length !== 1 ? "s" : ""}
                   </Badge>
                 </span>
               </CardHeader>
               <CardContent className="space-y-2">
-                {store.players.length === 0 ? (
+                {storePlayers.length === 0 ? (
                   <div className="flex items-center justify-center py-8 text-muted-foreground/50">
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     En attente de joueurs...
                   </div>
                 ) : (
-                  store.players.map((player) => (
+                  storePlayers.map((player) => (
                     <LobbyCard
                       key={player.id}
                       player={player}
-                      isMe={player.id === store.myPlayerId}
+                      isMe={player.id === myPlayerId}
                       showKick={!!isHost}
                       onKick={handleKickPlayer}
                       kickLoading={kickLoading}
@@ -345,10 +352,10 @@ function LobbyPage() {
                   ))
                 )}
 
-                {store.players.length > 0 && store.players.length < minPlayers && (
+                {storePlayers.length > 0 && storePlayers.length < minPlayers && (
                   <p className="pt-3 text-center text-xs font-medium text-muted-foreground/70">
                     Il faut au moins {minPlayers} joueurs pour commencer (
-                    {store.players.length}/{minPlayers})
+                    {storePlayers.length}/{minPlayers})
                   </p>
                 )}
               </CardContent>
@@ -364,13 +371,13 @@ function LobbyPage() {
               >
                 {assigning
                   ? "Attribution en cours..."
-                  : store.players.length < minPlayers
-                    ? `En attente de joueurs (${store.players.length}/${minPlayers} min.)`
+                  : storePlayers.length < minPlayers
+                    ? `En attente de joueurs (${storePlayers.length}/${minPlayers} min.)`
                     : "Lancer l'attribution des rôles"}
               </Button>
             )}
 
-            {!isHost && mounted && store.myPlayerId && (
+            {!isHost && mounted && myPlayerId && (
               <Alert>
                 <AlertDescription className="text-center font-display italic">
                   En attente que l&apos;hôte lance la partie...
@@ -380,11 +387,11 @@ function LobbyPage() {
           </div>
 
           {/* Right column: Settings (on lg: sticky sidebar) */}
-          {store.lobby && (
+          {lobby && (
             <div ref={settingsRef} className="opacity-0 lg:sticky lg:top-8 lg:self-start order-first lg:order-last">
               <LobbySettings
                 impostorCount={impostorCount}
-                activePlayerCount={store.players.length}
+                activePlayerCount={storePlayers.length}
                 isHost={!!isHost}
                 updating={settingsUpdating}
                 onImpostorCountChange={handleImpostorCountChange}

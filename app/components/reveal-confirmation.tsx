@@ -5,14 +5,14 @@ import { Trophy, Home } from "lucide-react";
 
 export function RevealConfirmation() {
   const navigate = useNavigate();
-  const store = useLobbyStore();
-  const isFinished = store.lobby?.status === "finished";
+  const lobby = useLobbyStore((s) => s.lobby);
+  const isFinished = lobby?.status === "finished";
 
   const handleResults = () => {
-    if (!store.lobby) return;
+    if (!lobby) return;
     navigate({
       to: "/lobby/$code/results",
-      params: { code: store.lobby.code },
+      params: { code: lobby.code },
     });
   };
 

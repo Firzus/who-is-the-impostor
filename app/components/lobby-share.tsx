@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -8,13 +8,13 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Share2, QrCode, Link, Check } from "lucide-react";
-import qrcode from "qrcode-generator";
 
 interface LobbyShareProps {
   code: string;
 }
 
-function generateQrDataUrl(url: string): string {
+async function generateQrDataUrl(url: string): Promise<string> {
+  const { default: qrcode } = await import("qrcode-generator");
   const qr = qrcode(0, "M");
   qr.addData(url);
   qr.make();
@@ -25,6 +25,7 @@ function generateQrDataUrl(url: string): string {
 export function LobbyShare({ code }: LobbyShareProps) {
   const [open, setOpen] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
 
   const lobbyUrl =
     typeof window !== "undefined"
@@ -33,11 +34,16 @@ export function LobbyShare({ code }: LobbyShareProps) {
 
   const shareText = `Rejoins ma partie "Qui est l'imposteur" !\nCode : ${code}\n${lobbyUrl}`;
 
+  useEffect(() => {
+    if (!open) return;
+    void generateQrDataUrl(lobbyUrl).then(setQrDataUrl);
+  }, [open, lobbyUrl]);
+
   const handleNativeShare = async () => {
     if (navigator.share) {
       try {
         await navigator.share({ title: "Qui est l'imposteur", text: shareText });
-      } catch {}
+      } catch { }
     } else {
       setOpen(true);
     }
@@ -48,8 +54,6 @@ export function LobbyShare({ code }: LobbyShareProps) {
     setLinkCopied(true);
     setTimeout(() => setLinkCopied(false), 2000);
   };
-
-  const qrDataUrl = generateQrDataUrl(lobbyUrl);
 
   return (
     <>
@@ -78,11 +82,17 @@ export function LobbyShare({ code }: LobbyShareProps) {
           </DialogHeader>
 
           <div className="flex flex-col items-center gap-4">
-            <img
-              src={qrDataUrl}
-              alt={`QR code pour rejoindre le lobby ${code}`}
-              className="w-40 h-40 bg-white p-2"
-            />
+            {qrDataUrl ? (
+              <img
+                src={qrDataUrl}
+                alt={`QR code pour rejoindre le lobby ${code}`}
+                className="w-40 h-40 bg-white p-2"
+              />
+            ) : (
+              <div className="w-40 h-40 bg-white/10 flex items-center justify-center">
+                <QrCode className="h-8 w-8 animate-pulse text-muted-foreground/40" />
+              </div>
+            )}
 
             <div className="w-full space-y-2">
               <div className="flex items-center gap-2 border border-border/40 bg-background/40 px-3 py-2">

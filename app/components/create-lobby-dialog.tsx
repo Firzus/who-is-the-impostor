@@ -26,7 +26,6 @@ export function CreateLobbyDialog({ open, onOpenChange }: CreateLobbyDialogProps
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const store = useLobbyStore();
 
   const handleCreate = async () => {
     if (name.length < 2) {
@@ -40,8 +39,9 @@ export function CreateLobbyDialog({ open, onOpenChange }: CreateLobbyDialogProps
     try {
       const result = await createLobby({ data: { hostName: name } });
       savePseudo(name);
-      store.setMyPlayerId(result.player.id);
-      store.setLobby(result.lobby);
+      const { setMyPlayerId, setLobby } = useLobbyStore.getState();
+      setMyPlayerId(result.player.id);
+      setLobby(result.lobby);
       onOpenChange(false);
       navigate({ to: "/lobby/$code", params: { code: result.lobby.code } });
     } catch (err: any) {

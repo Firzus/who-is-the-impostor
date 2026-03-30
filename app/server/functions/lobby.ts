@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { db } from "../db";
 import { lobbies, players } from "../db/schema";
-import { and, asc, count, desc, eq, isNotNull, isNull, ne } from "drizzle-orm";
+import { and, asc, count, desc, eq, inArray, isNotNull, isNull, ne } from "drizzle-orm";
 import { signToken } from "../auth";
 import { generateLobbyCode } from "@/lib/utils";
 import {
@@ -41,24 +41,28 @@ export const createLobby = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const code = generateLobbyCode();
 
-    const [lobby] = await db
-      .insert(lobbies)
-      .values({ code })
-      .returning();
+    const { lobby, host } = await db.transaction(async (tx) => {
+      const [lobby] = await tx
+        .insert(lobbies)
+        .values({ code })
+        .returning();
 
-    const [host] = await db
-      .insert(players)
-      .values({
-        lobbyId: lobby.id,
-        name: data.hostName,
-        isHost: true,
-      })
-      .returning();
+      const [host] = await tx
+        .insert(players)
+        .values({
+          lobbyId: lobby.id,
+          name: data.hostName,
+          isHost: true,
+        })
+        .returning();
 
-    await db
-      .update(lobbies)
-      .set({ hostId: host.id })
-      .where(eq(lobbies.id, lobby.id));
+      await tx
+        .update(lobbies)
+        .set({ hostId: host.id })
+        .where(eq(lobbies.id, lobby.id));
+
+      return { lobby, host };
+    });
 
     const token = signToken(host.id, lobby.id);
     return { lobby: { ...lobby, hostId: host.id }, player: host, token };
@@ -175,35 +179,34 @@ export const getPlayerRole = createServerFn({ method: "POST" })
       throw new Error("Joueur introuvable");
     }
 
-    if (player.role != null) {
+    if (player.role != null && !player.hasSeenRole) {
       await db
         .update(players)
         .set({ hasSeenRole: true })
         .where(eq(players.id, playerId));
 
-      const [lobbyRow] = await db
-        .select()
+      const [result] = await db
+        .select({
+          status: lobbies.status,
+          unseen: count(),
+        })
         .from(lobbies)
-        .where(eq(lobbies.id, player.lobbyId));
+        .leftJoin(
+          players,
+          and(
+            eq(players.lobbyId, lobbies.id),
+            eq(players.hasSeenRole, false),
+            isNotNull(players.role)
+          )
+        )
+        .where(eq(lobbies.id, player.lobbyId))
+        .groupBy(lobbies.id);
 
-      if (lobbyRow?.status === "roles_assigned") {
-        const [unseenRow] = await db
-          .select({ unseen: count() })
-          .from(players)
-          .where(
-            and(
-              eq(players.lobbyId, player.lobbyId),
-              eq(players.hasSeenRole, false),
-              isNotNull(players.role)
-            )
-          );
-
-        if (Number(unseenRow.unseen) === 0) {
-          await db
-            .update(lobbies)
-            .set({ status: "finished" })
-            .where(eq(lobbies.id, player.lobbyId));
-        }
+      if (result?.status === "roles_assigned" && Number(result.unseen) === 0) {
+        await db
+          .update(lobbies)
+          .set({ status: "finished" })
+          .where(eq(lobbies.id, player.lobbyId));
       }
     }
 
@@ -356,14 +359,23 @@ export const assignRoles = createServerFn({ method: "POST" })
       pickImpostorIndices(impostorCount, lobbyPlayers.length)
     );
 
+    const impostorIds = lobbyPlayers
+      .filter((_, i) => impostorIndices.has(i))
+      .map((p) => p.id);
+    const adventurerIds = lobbyPlayers
+      .filter((_, i) => !impostorIndices.has(i))
+      .map((p) => p.id);
+
     await db.transaction(async (tx) => {
-      for (let i = 0; i < lobbyPlayers.length; i++) {
-        const role = impostorIndices.has(i) ? "imposteur" : "aventurier";
-        await tx
-          .update(players)
-          .set({ role, hasSeenRole: false })
-          .where(eq(players.id, lobbyPlayers[i]!.id));
-      }
+      await tx
+        .update(players)
+        .set({ role: "imposteur", hasSeenRole: false })
+        .where(inArray(players.id, impostorIds));
+
+      await tx
+        .update(players)
+        .set({ role: "aventurier", hasSeenRole: false })
+        .where(inArray(players.id, adventurerIds));
 
       await tx
         .update(lobbies)

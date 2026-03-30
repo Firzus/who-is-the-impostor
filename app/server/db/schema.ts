@@ -6,6 +6,7 @@ import {
   timestamp,
   boolean,
   integer,
+  index,
 } from "drizzle-orm/pg-core";
 
 export const lobbyStatusEnum = pgEnum("lobby_status", [
@@ -24,7 +25,9 @@ export const lobbies = pgTable("lobbies", {
   status: lobbyStatusEnum("status").default("waiting").notNull(),
   impostorCount: integer("impostor_count").default(1).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (table) => [
+  index("idx_lobbies_created_at").on(table.createdAt),
+]);
 
 export const players = pgTable("players", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -37,7 +40,9 @@ export const players = pgTable("players", {
   joinedAt: timestamp("joined_at").defaultNow().notNull(),
   hasSeenRole: boolean("has_seen_role").default(false).notNull(),
   kickedAt: timestamp("kicked_at"),
-});
+}, (table) => [
+  index("idx_players_lobby_id").on(table.lobbyId),
+]);
 
 export type Lobby = typeof lobbies.$inferSelect;
 export type NewLobby = typeof lobbies.$inferInsert;

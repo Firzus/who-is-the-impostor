@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, useRef, useCallback } from "react";
-import gsap from "gsap";
+import { getGsap } from "@/lib/gsap";
 import { RoleReveal } from "@/components/role-reveal";
 import { RevealConfirmation } from "@/components/reveal-confirmation";
 import { useLobbyStore } from "@/stores/lobby-store";
@@ -16,7 +16,9 @@ export const Route = createFileRoute("/lobby/$code/reveal")({
 });
 
 function RevealPage() {
-  const store = useLobbyStore();
+  const myRole = useLobbyStore((s) => s.myRole);
+  const players = useLobbyStore((s) => s.players);
+  const myPlayerId = useLobbyStore((s) => s.myPlayerId);
   const [confirmed, setConfirmed] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const confirmationRef = useRef<HTMLDivElement>(null);
@@ -41,25 +43,29 @@ function RevealPage() {
   }, [fetchRole]);
 
   useEffect(() => {
-    if (!store.myRole) return;
+    if (!myRole) return;
     const el = containerRef.current;
     if (!el) return;
-    gsap.fromTo(
-      el,
-      { opacity: 0, scale: 0.96 },
-      { opacity: 1, scale: 1, duration: 0.8, ease: "power2.out" }
+    void getGsap().then((gsap) =>
+      gsap.fromTo(
+        el,
+        { opacity: 0, scale: 0.96 },
+        { opacity: 1, scale: 1, duration: 0.8, ease: "power2.out" }
+      )
     );
-  }, [store.myRole]);
+  }, [myRole]);
 
   useEffect(() => {
     if (!confirmed) return;
     const el = confirmationRef.current;
     if (!el) return;
 
-    gsap.fromTo(
-      el,
-      { opacity: 0, y: 12 },
-      { opacity: 1, y: 0, duration: 0.5, ease: "power2.out", delay: 0.2 }
+    void getGsap().then((gsap) =>
+      gsap.fromTo(
+        el,
+        { opacity: 0, y: 12 },
+        { opacity: 1, y: 0, duration: 0.5, ease: "power2.out", delay: 0.2 }
+      )
     );
   }, [confirmed]);
 
@@ -73,7 +79,7 @@ function RevealPage() {
       try {
         const result = await getLobby({ data: lobby.code });
         useLobbyStore.getState().setLobby(result.lobby);
-      } catch {}
+      } catch { }
     };
 
     pollStatus();
@@ -85,14 +91,16 @@ function RevealPage() {
     setConfirmed(true);
     const el = containerRef.current;
     if (!el) return;
-    gsap.to(el, {
-      opacity: 0.3,
-      filter: "blur(4px)",
-      duration: 0.5,
-    });
+    void getGsap().then((gsap) =>
+      gsap.to(el, {
+        opacity: 0.3,
+        filter: "blur(4px)",
+        duration: 0.5,
+      })
+    );
   };
 
-  if (!store.myRole) {
+  if (!myRole) {
     return (
       <div className="flex min-h-screen items-center justify-center px-4">
         <div className="flex flex-col items-center gap-4">
@@ -110,9 +118,9 @@ function RevealPage() {
       <div className="flex flex-col items-center gap-8">
         <div ref={containerRef} className="opacity-0">
           <RoleReveal
-            role={store.myRole}
+            role={myRole}
             playerName={
-              store.players.find((p) => p.id === store.myPlayerId)?.name ?? ""
+              players.find((p) => p.id === myPlayerId)?.name ?? ""
             }
             onConfirm={handleConfirm}
           />

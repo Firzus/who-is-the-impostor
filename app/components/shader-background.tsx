@@ -4,14 +4,14 @@ import FRAG_SOURCE from "@/shaders/background.frag";
 
 // prettier-ignore
 const BAYER_DATA = new Uint8Array([
-    4, 131,  36, 163,  12, 139,  44, 171,
-  195,  68, 227, 100, 203,  76, 235, 108,
-   52, 179,  20, 147,  60, 187,  28, 155,
-  243, 116, 211,  84, 251, 124, 219,  92,
-   16, 143,  48, 175,   8, 135,  40, 167,
-  207,  80, 239, 112, 215,  88, 247, 120,
-   64, 191,  32, 159,  72, 199,  40, 167,
-  255, 128, 223,  96, 247, 120, 231, 104,
+  4, 131, 36, 163, 12, 139, 44, 171,
+  195, 68, 227, 100, 203, 76, 235, 108,
+  52, 179, 20, 147, 60, 187, 28, 155,
+  243, 116, 211, 84, 251, 124, 219, 92,
+  16, 143, 48, 175, 8, 135, 40, 167,
+  207, 80, 239, 112, 215, 88, 247, 120,
+  64, 191, 32, 159, 72, 199, 40, 167,
+  255, 128, 223, 96, 247, 120, 231, 104,
 ]);
 
 function compileShader(gl: WebGLRenderingContext, type: number, source: string): WebGLShader | null {
@@ -126,14 +126,19 @@ export function ShaderBackground() {
 
     let lastTime = 0;
     let paused = false;
+    const TARGET_INTERVAL = 1000 / 30;
+    let lastFrameTime = 0;
 
-    const render = () => {
-      lastTime = (performance.now() - startTimeRef.current) / 1000;
+    const render = (now: number) => {
+      rafRef.current = requestAnimationFrame(render);
+      if (now - lastFrameTime < TARGET_INTERVAL) return;
+      lastFrameTime = now;
+
+      lastTime = (now - startTimeRef.current) / 1000;
       gl.uniform1f(uTime, lastTime);
       gl.uniform2f(uResolution, canvas.width, canvas.height);
       gl.uniform2f(uMouse, mouseRef.current.x, window.innerHeight - mouseRef.current.y);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-      rafRef.current = requestAnimationFrame(render);
     };
 
     const handleVisibility = () => {
@@ -148,7 +153,7 @@ export function ShaderBackground() {
     };
 
     document.addEventListener("visibilitychange", handleVisibility);
-    render();
+    rafRef.current = requestAnimationFrame(render);
 
     return cleanup;
   }, [handleMouseMove]);

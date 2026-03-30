@@ -62,11 +62,24 @@ const initialState = {
   error: null,
 };
 
-export const useLobbyStore = create<LobbyState>((set) => ({
+function playersEqual(a: LobbyPlayer[], b: LobbyPlayer[]): boolean {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    const pa = a[i]!;
+    const pb = b[i]!;
+    if (pa.id !== pb.id || pa.name !== pb.name || pa.isHost !== pb.isHost) return false;
+  }
+  return true;
+}
+
+export const useLobbyStore = create<LobbyState>((set, get) => ({
   ...initialState,
 
   setLobby: (lobby) => set({ lobby }),
-  setPlayers: (players) => set({ players }),
+  setPlayers: (players) => {
+    if (playersEqual(get().players, players)) return;
+    set({ players });
+  },
   addPlayer: (player) =>
     set((state) => ({
       players: state.players.some((p) => p.id === player.id)

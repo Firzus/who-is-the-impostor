@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import gsap from "gsap";
+import { getGsap } from "@/lib/gsap";
 import { SkullIcon } from "@/components/icons/skull-icon";
 import { SwordIcon } from "@/components/icons/sword-icon";
 import { cn } from "@/lib/utils";
@@ -33,20 +33,22 @@ export function LobbySettings({
   const infoRef = useRef<HTMLParagraphElement>(null);
 
   useEffect(() => {
-    if (barRef.current) {
-      gsap.to(barRef.current, {
-        width: `${impostorRatio * 100}%`,
-        duration: 0.5,
-        ease: "power2.out",
-      });
-    }
-    if (infoRef.current) {
-      gsap.fromTo(
-        infoRef.current,
-        { opacity: 0.3, y: -6 },
-        { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" }
-      );
-    }
+    void getGsap().then((gsap) => {
+      if (barRef.current) {
+        gsap.to(barRef.current, {
+          scaleX: impostorRatio,
+          duration: 0.5,
+          ease: "power2.out",
+        });
+      }
+      if (infoRef.current) {
+        gsap.fromTo(
+          infoRef.current,
+          { opacity: 0.3, y: -6 },
+          { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" }
+        );
+      }
+    });
   }, [impostorCount, impostorRatio]);
 
   const dangerLevel = impostorCount === 1 ? 0 : impostorCount === 2 ? 0.4 : 0.8;
@@ -140,7 +142,9 @@ export function LobbySettings({
               ref={barRef}
               className="h-full"
               style={{
-                width: `${impostorRatio * 100}%`,
+                width: "100%",
+                transformOrigin: "left",
+                transform: `scaleX(${impostorRatio})`,
                 background: "linear-gradient(90deg, #c03030, #e04040, #ff6b6b)",
                 boxShadow: "0 0 12px rgba(224, 64, 64, 0.4)",
               }}

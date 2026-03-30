@@ -22,19 +22,6 @@
   --border: oklch(0.2674 0.0047 248.0045);
   --input: oklch(0.275 0.0318 208.9643);
   --ring: oklch(0.7038 0.1195 210.5094);
-  --chart-1: oklch(0.6723 0.1606 244.9955);
-  --chart-2: oklch(0.6907 0.1554 160.3454);
-  --chart-3: oklch(0.8214 0.16 82.5337);
-  --chart-4: oklch(0.7064 0.1822 151.7125);
-  --chart-5: oklch(0.5919 0.2186 10.5826);
-  --sidebar: oklch(0 0 0);
-  --sidebar-foreground: oklch(0.9328 0.0025 228.7857);
-  --sidebar-primary: oklch(0.4655 0.0769 209.5768);
-  --sidebar-primary-foreground: oklch(0.9807 0.0201 204.4297);
-  --sidebar-accent: oklch(0.187 0.0152 211.4385);
-  --sidebar-accent-foreground: oklch(0.9328 0.0025 228.7857);
-  --sidebar-border: oklch(0.2674 0.0047 248.0045);
-  --sidebar-ring: oklch(0.7038 0.1195 210.5094);
   --font-sans: "Cormorant Garamond", Georgia, serif;
   --font-serif: Georgia, serif;
   --font-mono: "IBM Plex Mono", Menlo, monospace;
@@ -89,20 +76,6 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
-
   --color-impostor: var(--color-impostor);
   --color-aventurier: var(--color-aventurier);
   --color-emerald: var(--color-emerald);
@@ -229,86 +202,6 @@
     background-clip: text;
   }
 
-  .shimmer {
-    position: relative;
-    overflow: hidden;
-  }
-
-  .shimmer::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      105deg,
-      transparent 40%,
-      rgba(80, 200, 120, 0.04) 45%,
-      rgba(80, 200, 120, 0.08) 50%,
-      rgba(80, 200, 120, 0.04) 55%,
-      transparent 60%
-    );
-    animation: shimmer 5s ease-in-out infinite;
-  }
-
-  @keyframes shimmer {
-    0%,
-    100% {
-      transform: translateX(-100%);
-    }
-    50% {
-      transform: translateX(100%);
-    }
-  }
-
-  .fade-up {
-    animation: fadeUp 0.7s ease-out both;
-  }
-
-  @keyframes fadeUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .stagger-1 {
-    animation-delay: 0.1s;
-  }
-  .stagger-2 {
-    animation-delay: 0.2s;
-  }
-  .stagger-3 {
-    animation-delay: 0.35s;
-  }
-  .stagger-4 {
-    animation-delay: 0.5s;
-  }
-
-  .rune-divider {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .rune-divider::before,
-  .rune-divider::after {
-    content: "";
-    height: 1px;
-    width: 2.5rem;
-    background: linear-gradient(
-      to var(--dir, right),
-      transparent,
-      rgba(80, 200, 120, 0.3)
-    );
-  }
-
-  .rune-divider::after {
-    --dir: left;
-  }
-
   .noise-overlay {
     position: fixed;
     inset: 0;
@@ -333,27 +226,6 @@
       transparent 40%,
       rgba(0, 0, 0, 0.6) 100%
     );
-  }
-
-  .step-connector {
-    width: 2rem;
-    height: 1px;
-    background: linear-gradient(
-      to right,
-      rgba(80, 200, 120, 0.3),
-      rgba(80, 200, 120, 0.1)
-    );
-    position: relative;
-  }
-
-  .step-connector::after {
-    content: "◆";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 6px;
-    color: rgba(80, 200, 120, 0.3);
   }
 
   @keyframes float {
@@ -413,17 +285,7 @@
     animation: none !important;
   }
 
-  .shimmer::after {
-    animation: none !important;
-  }
-
   .noise-overlay {
     display: none;
-  }
-
-  /* Ensure elements that start with opacity-0 for GSAP are visible */
-  .fade-up {
-    opacity: 1 !important;
-    transform: none !important;
   }
 }

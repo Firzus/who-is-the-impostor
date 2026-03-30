@@ -1,5 +1,5 @@
 import { type MouseEvent, useRef, useEffect, useState } from "react";
-import gsap from "gsap";
+import { getGsap } from "@/lib/gsap";
 import { Button } from "@/components/ui/button";
 import {
   createHolographicBackground,
@@ -33,15 +33,16 @@ export function RoleReveal({ role, playerName, onConfirm }: RoleRevealProps) {
   useEffect(() => {
     const back = backRef.current;
     if (!back) return;
-    gsap.set(back, { rotateY: 180 });
+    void getGsap().then((gsap) => gsap.set(back, { rotateY: 180 }));
     return () => {
       particleCleanup.current?.();
     };
   }, []);
 
-  const triggerScreenFlash = () => {
+  const triggerScreenFlash = async () => {
     const flash = flashRef.current;
     if (!flash) return;
+    const gsap = await getGsap();
     flash.style.background = isImpostor
       ? "radial-gradient(circle, rgba(224,64,64,0.35), rgba(224,64,64,0) 70%)"
       : "radial-gradient(circle, rgba(212,160,23,0.35), rgba(212,160,23,0) 70%)";
@@ -55,9 +56,10 @@ export function RoleReveal({ role, playerName, onConfirm }: RoleRevealProps) {
     });
   };
 
-  const triggerScreenShake = () => {
+  const triggerScreenShake = async () => {
     const wrapper = wrapperRef.current;
     if (!wrapper) return;
+    const gsap = await getGsap();
     gsap.fromTo(wrapper,
       { x: 0 },
       {
@@ -74,7 +76,7 @@ export function RoleReveal({ role, playerName, onConfirm }: RoleRevealProps) {
     );
   };
 
-  const handleReveal = () => {
+  const handleReveal = async () => {
     if (revealed) return;
     const card = cardRef.current;
     if (!card) return;
@@ -84,6 +86,7 @@ export function RoleReveal({ role, playerName, onConfirm }: RoleRevealProps) {
     setRevealed(true);
     setHoverEnabled(false);
 
+    const gsap = await getGsap();
     const tl = gsap.timeline();
 
     tl.to(card, {
@@ -101,8 +104,8 @@ export function RoleReveal({ role, playerName, onConfirm }: RoleRevealProps) {
             setTimeout(() => {
               particleCleanup.current?.();
               particleCleanup.current = burstParticles(canvas, role);
-              triggerScreenFlash();
-              triggerScreenShake();
+              void triggerScreenFlash();
+              void triggerScreenShake();
               playRevealSound(role);
             }, 350);
           }
@@ -150,24 +153,26 @@ export function RoleReveal({ role, playerName, onConfirm }: RoleRevealProps) {
       rect,
     });
 
-    gsap.to(card, {
-      rotateX: hoverState.rotateX,
-      rotateY: 180 + hoverState.rotateY,
-      scale: hoverState.scale,
-      duration: 0.25,
-      ease: "power2.out",
-      transformPerspective: 1000,
-    });
+    void getGsap().then((gsap) => {
+      gsap.to(card, {
+        rotateX: hoverState.rotateX,
+        rotateY: 180 + hoverState.rotateY,
+        scale: hoverState.scale,
+        duration: 0.25,
+        ease: "power2.out",
+        transformPerspective: 1000,
+      });
 
-    gsap.to(holographic, {
-      opacity: 0.5,
-      duration: 0.2,
-      ease: "power2.out",
-      background: createHolographicBackground({
-        pointerX: event.clientX,
-        pointerY: event.clientY,
-        rect,
-      }),
+      gsap.to(holographic, {
+        opacity: 0.5,
+        duration: 0.2,
+        ease: "power2.out",
+        background: createHolographicBackground({
+          pointerX: event.clientX,
+          pointerY: event.clientY,
+          rect,
+        }),
+      });
     });
   };
 
@@ -180,19 +185,21 @@ export function RoleReveal({ role, playerName, onConfirm }: RoleRevealProps) {
     const holographic = holographicRef.current;
     if (!card || !holographic) return;
 
-    gsap.to(card, {
-      rotateX: 0,
-      rotateY: 180,
-      scale: 1,
-      duration: 0.45,
-      ease: "power3.out",
-      transformPerspective: 1000,
-    });
+    void getGsap().then((gsap) => {
+      gsap.to(card, {
+        rotateX: 0,
+        rotateY: 180,
+        scale: 1,
+        duration: 0.45,
+        ease: "power3.out",
+        transformPerspective: 1000,
+      });
 
-    gsap.to(holographic, {
-      opacity: 0,
-      duration: 0.35,
-      ease: "power2.out",
+      gsap.to(holographic, {
+        opacity: 0,
+        duration: 0.35,
+        ease: "power2.out",
+      });
     });
   };
 

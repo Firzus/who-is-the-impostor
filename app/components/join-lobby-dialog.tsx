@@ -28,7 +28,6 @@ export function JoinLobbyDialog({ open, onOpenChange }: JoinLobbyDialogProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const store = useLobbyStore();
 
   const handleJoin = async () => {
     if (code.length !== 6) {
@@ -48,8 +47,9 @@ export function JoinLobbyDialog({ open, onOpenChange }: JoinLobbyDialogProps) {
         data: { code: code.toUpperCase(), playerName: name },
       });
       savePseudo(name);
-      store.setMyPlayerId(result.player.id);
-      store.setLobby(result.lobby);
+      const { setMyPlayerId, setLobby } = useLobbyStore.getState();
+      setMyPlayerId(result.player.id);
+      setLobby(result.lobby);
       onOpenChange(false);
       navigate({ to: "/lobby/$code", params: { code: result.lobby.code } });
     } catch (err: any) {

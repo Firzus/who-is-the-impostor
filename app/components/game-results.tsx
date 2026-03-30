@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import gsap from "gsap";
+import { getGsap } from "@/lib/gsap";
 import { Button } from "@/components/ui/button";
 import { SkullIcon } from "@/components/icons/skull-icon";
 import { SwordIcon } from "@/components/icons/sword-icon";
@@ -31,10 +31,12 @@ export function GameResults({
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
-    gsap.fromTo(
-      el,
-      { opacity: 0, y: 20 },
-      { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }
+    void getGsap().then((gsap) =>
+      gsap.fromTo(
+        el,
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }
+      )
     );
   }, []);
 
@@ -54,18 +56,21 @@ export function GameResults({
 
   useEffect(() => {
     if (!cardsRef.current) return;
-    gsap.fromTo(
-      cardsRef.current.querySelectorAll(".result-card"),
-      { opacity: 0, rotateY: 90, scale: 0.8 },
-      {
-        opacity: 1,
-        rotateY: 0,
-        scale: 1,
-        duration: 0.5,
-        ease: "back.out(1.5)",
-        delay: 0.5,
-        stagger: 0.3,
-      }
+    const cards = cardsRef.current.querySelectorAll(".result-card");
+    void getGsap().then((gsap) =>
+      gsap.fromTo(
+        cards,
+        { opacity: 0, rotateY: 90, scale: 0.8 },
+        {
+          opacity: 1,
+          rotateY: 0,
+          scale: 1,
+          duration: 0.5,
+          ease: "back.out(1.5)",
+          delay: 0.5,
+          stagger: 0.3,
+        }
+      )
     );
   }, [players]);
 

@@ -1,11 +1,13 @@
 import { z } from "zod";
 import { MAX_IMPOSTOR_COUNT } from "@/lib/lobby-lifecycle";
 
+const pseudoSchema = z
+  .string()
+  .min(2, "Le pseudo doit faire au moins 2 caractères")
+  .max(30, "Le pseudo ne peut pas dépasser 30 caractères");
+
 export const createLobbySchema = z.object({
-  hostName: z
-    .string()
-    .min(2, "Le pseudo doit faire au moins 2 caractères")
-    .max(30, "Le pseudo ne peut pas dépasser 30 caractères"),
+  hostName: pseudoSchema,
 });
 
 export const joinLobbySchema = z.object({
@@ -13,28 +15,24 @@ export const joinLobbySchema = z.object({
     .string()
     .length(6, "Le code doit faire exactement 6 caractères")
     .toUpperCase(),
-  playerName: z
-    .string()
-    .min(2, "Le pseudo doit faire au moins 2 caractères")
-    .max(30, "Le pseudo ne peut pas dépasser 30 caractères"),
+  playerName: pseudoSchema,
 });
 
 export const assignRolesSchema = z.object({
-  lobbyId: z.string().uuid(),
-  requesterId: z.string().uuid(),
+  lobbyId: z.guid(),
+  requesterId: z.guid(),
 });
 
 export const kickPlayerSchema = z.object({
-  lobbyId: z.string().uuid(),
-  requesterId: z.string().uuid(),
-  targetPlayerId: z.string().uuid(),
+  lobbyId: z.guid(),
+  requesterId: z.guid(),
+  targetPlayerId: z.guid(),
 });
 
 export const updateLobbySettingsSchema = z.object({
-  lobbyId: z.string().uuid(),
-  requesterId: z.string().uuid(),
+  lobbyId: z.guid(),
+  requesterId: z.guid(),
   impostorCount: z
-    .number()
     .int()
     .min(1, "Au moins 1 imposteur")
     .max(
@@ -50,22 +48,22 @@ export const lobbyAccessCodeSchema = z
   .transform((s) => s.toUpperCase());
 
 /** GET server fn: player id for role fetch */
-export const playerUuidSchema = z.string().uuid();
+export const playerUuidSchema = z.guid();
 
 export const transferHostSchema = z.object({
-  lobbyId: z.string().uuid(),
-  requesterId: z.string().uuid(),
-  targetPlayerId: z.string().uuid(),
+  lobbyId: z.guid(),
+  requesterId: z.guid(),
+  targetPlayerId: z.guid(),
 });
 
 export const leaveLobbySchema = z.object({
-  lobbyId: z.string().uuid(),
-  playerId: z.string().uuid(),
+  lobbyId: z.guid(),
+  playerId: z.guid(),
 });
 
 export const lobbyResultsSchema = z.object({
-  lobbyId: z.string().uuid(),
-  playerId: z.string().uuid(),
+  lobbyId: z.guid(),
+  playerId: z.guid(),
 });
 
 export type LobbyResultsInput = z.infer<typeof lobbyResultsSchema>;

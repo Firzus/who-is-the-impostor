@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from "react";
-import gsap from "gsap";
+import { useState, useRef, useEffect, memo } from "react";
+import { getGsap } from "@/lib/gsap";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -27,7 +27,7 @@ interface LobbyCardProps {
   transferLoading?: boolean;
 }
 
-export function LobbyCard({
+export const LobbyCard = memo(function LobbyCard({
   player,
   isMe,
   showKick,
@@ -42,10 +42,12 @@ export function LobbyCard({
   useEffect(() => {
     const el = cardRef.current;
     if (!el) return;
-    gsap.fromTo(
-      el,
-      { opacity: 0, x: -16, scale: 0.97 },
-      { opacity: 1, x: 0, scale: 1, duration: 0.4, ease: "power2.out" }
+    void getGsap().then((gsap) =>
+      gsap.fromTo(
+        el,
+        { opacity: 0, x: -16, scale: 0.97 },
+        { opacity: 1, x: 0, scale: 1, duration: 0.4, ease: "power2.out" }
+      )
     );
   }, []);
 
@@ -152,4 +154,4 @@ export function LobbyCard({
       </AlertDialog>
     </>
   );
-}
+});

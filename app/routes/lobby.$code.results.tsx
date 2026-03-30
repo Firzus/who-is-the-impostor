@@ -22,7 +22,7 @@ interface ResultPlayer {
 
 function ResultsPage() {
   const navigate = useNavigate();
-  const store = useLobbyStore();
+  const myPlayerId = useLobbyStore((s) => s.myPlayerId);
   const [results, setResults] = useState<ResultPlayer[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -82,7 +82,7 @@ function ResultsPage() {
     <div className="flex min-h-screen items-center justify-center px-4 py-8">
       <GameResults
         players={results}
-        myPlayerId={store.myPlayerId}
+        myPlayerId={myPlayerId}
         onReturnHome={handleReturnHome}
       />
     </div>
