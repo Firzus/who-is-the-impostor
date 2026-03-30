@@ -32,15 +32,28 @@
 ## Setup Commands
 
 ```bash
+# Prerequisites: Node 22+, pnpm 10+, PostgreSQL 16+
 pnpm install
+cp .env.example .env   # then set DATABASE_URL
 pnpm db:push
 ```
 
-Copy `.env.example` to `.env`:
-- `DATABASE_URL`: PostgreSQL connection string (required)
-- `VITE_SITE_URL`: Public site URL (optional, for SEO)
-- `DISABLE_LOBBY_CLEANUP`: Set to 1 to disable auto-cleanup (server-only)
-- `KICK_COOLDOWN_SECONDS`: Time before kicked player can rejoin (default: 10)
+Or use Docker Compose to run everything (PostgreSQL + app):
+```bash
+docker compose up
+```
+
+### Environment Variables
+
+See `.env.example`:
+
+| Variable                 | Required | Description                                   |
+| ------------------------ | -------- | --------------------------------------------- |
+| `DATABASE_URL`           | Yes      | PostgreSQL connection string                   |
+| `VITE_SITE_URL`          | No       | Public site URL for SEO (no trailing slash)    |
+| `DISABLE_LOBBY_CLEANUP`  | No       | Set to `1` to disable periodic lobby purge     |
+| `KICK_COOLDOWN_SECONDS`  | No       | Kick cooldown in seconds (default: 10)         |
+| `SESSION_SECRET`         | CI only  | Session secret for E2E tests                   |
 
 ## Development Workflow
 
@@ -78,6 +91,8 @@ pnpm db:studio            # Interactive explorer
 - `/drizzle/` - Generated migrations
 
 ## Code Style Guidelines
+
+No ESLint or Prettier is configured. Follow existing conventions.
 
 ### TypeScript
 - Strict mode enabled
@@ -119,30 +134,31 @@ Never import server code in client components.
 
 ## Testing
 
-Unit tests:
+### Unit tests (Vitest)
+
+- Config: `vitest.config.ts`
+- Test files: `app/**/*.test.ts` (colocated with source or in `app/lib/__tests__/`)
+- Run all: `pnpm test`
+- Watch mode: `pnpm test:watch`
+- Run a specific test: `pnpm vitest run -t "<test name>"`
+
+### E2E tests (Playwright)
+
+- Config: `playwright.config.ts`
+- Test files: `e2e/*.spec.ts`
+- Run all: `pnpm test:e2e`
+- Interactive: `pnpm test:e2e:ui`
+- Browser: Chromium only, workers: 1 (sequential)
+- Auto-starts dev server on port 3000
+- Retries: 2 on CI, 0 locally
+
+### Before submitting
+
+Always run all checks:
 ```bash
-pnpm test                              # Run once
-pnpm test:watch                        # Watch mode
-pnpm test -- --grep "pattern"         # Match pattern
+pnpm typecheck && pnpm test
 ```
-
-Test structure:
-- Unit tests: `app/lib/__tests__/*.test.ts` and `app/components/*.test.ts`
-- E2E tests: `e2e/*.spec.ts` (Playwright)
-- Framework: Vitest (unit), Playwright (E2E)
-
-E2E tests:
-```bash
-pnpm test:e2e              # Run all
-pnpm test:e2e:ui           # Interactive
-```
-
-Type checking:
-```bash
-pnpm typecheck
-```
-
-Before merge: typecheck, test, build, and security scans must pass.
+CI also runs: build, Playwright E2E, Trivy security scan, Semgrep SAST analysis.
 
 ## Build and Deployment
 
@@ -153,20 +169,17 @@ pnpm build
 Output: .output/ directory
 Entry: .output/server/index.mjs
 
-Docker:
+Docker (multi-stage, Node 22 Alpine):
 ```bash
 docker build -t impostor:latest .
-docker-compose up
+docker compose up
 ```
+Runtime runs migrations then starts server: `node scripts/run-migrations.mjs && node .output/server/index.mjs`
 
-CI/CD:
-- `e2e.yml`: E2E tests on push/PR to main
-- `publish.yml`: Full pipeline (typecheck + test + build + security + deploy)
-
-Deployment secrets:
-- DOKPLOY_URL
-- DOKPLOY_AUTH_TOKEN
-- DOKPLOY_APPLICATION_ID
+CI/CD (GitHub Actions):
+- `e2e.yml`: E2E tests with PostgreSQL service on push/PR to main
+- `publish.yml`: Full pipeline (typecheck + test + build + Trivy + Semgrep + Docker push to GHCR + Dokploy deploy)
+- Docker image tags: `latest` on main, `dev` on dev branch, short SHA for all pushes
 
 ## Available Scripts
 
