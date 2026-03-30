@@ -91,24 +91,24 @@ export function playSound(
 
   const buffer = bufferCache.get(id);
   if (buffer) {
-    playBuffer(ctx, buffer, opts?.volume ?? 0.125);
+    playBuffer(ctx, buffer, opts?.volume ?? 1);
   }
 }
 
 export function playJoinSound() {
-  playSound("player-join");
+  playSound("player-join", { volume: 0.15 });
 }
 
 export function playLeaveSound() {
-  playSound("player-leave");
+  playSound("player-leave", { volume: 0.12 });
 }
 
 export function playRolesAssignedSound() {
-  playSound("roles-assigned");
+  playSound("roles-assigned", { volume: 0.25 });
 }
 
 export function playRevealSound(role: string) {
-  const id: SoundId =
-    role === "imposteur" ? "reveal-impostor" : "reveal-aventurier";
-  playSound(id);
+  const isImpostor = role === "imposteur";
+  const id: SoundId = isImpostor ? "reveal-impostor" : "reveal-aventurier";
+  playSound(id, { volume: isImpostor ? 0.2 : 1 });
 }
