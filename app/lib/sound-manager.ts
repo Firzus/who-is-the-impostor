@@ -11,6 +11,27 @@ type SoundId = keyof typeof SOUNDS;
 let audioCtx: AudioContext | null = null;
 const bufferCache = new Map<SoundId, AudioBuffer>();
 let preloadPromise: Promise<void> | null = null;
+let unlocked = false;
+
+function unlockAudio() {
+  if (unlocked) return;
+  const ctx = getCtx();
+  if (ctx && ctx.state === "suspended") ctx.resume();
+  unlocked = true;
+}
+
+function ensureUnlockListeners() {
+  if (typeof document === "undefined" || unlocked) return;
+
+  const events = ["click", "touchend", "keydown"] as const;
+  const handler = () => {
+    unlockAudio();
+    events.forEach((e) => document.removeEventListener(e, handler));
+  };
+  events.forEach((e) =>
+    document.addEventListener(e, handler, { once: true }),
+  );
+}
 
 function getCtx(): AudioContext | null {
   try {
@@ -24,6 +45,7 @@ function getCtx(): AudioContext | null {
 }
 
 export async function preloadSounds(): Promise<void> {
+  ensureUnlockListeners();
   if (preloadPromise) return preloadPromise;
 
   preloadPromise = (async () => {
