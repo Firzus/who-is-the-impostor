@@ -5,6 +5,7 @@ import { SwordIcon } from "@/components/icons/sword-icon";
 import { cn } from "@/lib/utils";
 import {
   MAX_IMPOSTOR_COUNT,
+  MAX_PLAYER_COUNT,
   minPlayersForLobby,
 } from "@/lib/lobby-lifecycle";
 
@@ -87,9 +88,19 @@ export function LobbySettings({
         {/* Header row */}
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-1.5">
-            <h3 className="font-heading text-[13px] font-bold uppercase tracking-[0.15em] text-foreground">
-              Configuration
-            </h3>
+            <div className="flex items-center gap-2">
+              <h3 className="font-heading text-[13px] font-bold uppercase tracking-[0.15em] text-foreground">
+                Configuration
+              </h3>
+              <span
+                className="font-mono text-[11px] font-semibold tabular-nums"
+                style={{
+                  color: activePlayerCount >= MAX_PLAYER_COUNT ? "#ff6b6b" : "rgba(255,255,255,0.45)",
+                }}
+              >
+                {activePlayerCount}/{MAX_PLAYER_COUNT}
+              </span>
+            </div>
             <p
               ref={infoRef}
               className="text-[13px] leading-relaxed text-foreground/85"

@@ -10,6 +10,9 @@ export const DEFAULT_KICK_COOLDOWN_SECONDS = 30;
 /** Max impostors configurable in lobby settings (host UI). */
 export const MAX_IMPOSTOR_COUNT = 3;
 
+/** Maximum number of players allowed in a lobby. */
+export const MAX_PLAYER_COUNT = 8;
+
 export function getLobbyTtlMs(): number {
   return LOBBY_TTL_HOURS * 60 * 60 * 1000;
 }

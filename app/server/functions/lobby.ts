@@ -8,6 +8,7 @@ import {
   getKickCooldownMs,
   minPlayersForLobby,
   MAX_IMPOSTOR_COUNT,
+  MAX_PLAYER_COUNT,
 } from "@/lib/lobby-lifecycle";
 import {
   createLobbySchema,
@@ -86,6 +87,15 @@ export const joinLobby = createServerFn({ method: "POST" })
 
     if (lobby.status !== "waiting") {
       throw new Error("Les rôles ont déjà été attribués");
+    }
+
+    const [{ activeCount }] = await db
+      .select({ activeCount: count() })
+      .from(players)
+      .where(and(eq(players.lobbyId, lobby.id), isNull(players.kickedAt)));
+
+    if (activeCount >= MAX_PLAYER_COUNT) {
+      throw new Error(`Le lobby est complet (${MAX_PLAYER_COUNT} joueurs maximum)`);
     }
 
     const [existingActive] = await db
