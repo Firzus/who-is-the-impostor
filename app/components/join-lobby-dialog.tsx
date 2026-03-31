@@ -14,6 +14,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { joinLobby } from "@/server/functions/lobby";
 import { useLobbyStore } from "@/stores/lobby-store";
 import { getSavedPseudo, savePseudo } from "@/lib/pseudo-storage";
+import { getKickCooldownRemaining } from "@/lib/kick-cooldown";
 
 interface JoinLobbyDialogProps {
   open: boolean;
@@ -39,12 +40,20 @@ export function JoinLobbyDialog({ open, onOpenChange }: JoinLobbyDialogProps) {
       return;
     }
 
+    const upperCode = code.toUpperCase();
+    const remainingMs = getKickCooldownRemaining(upperCode);
+    if (remainingMs > 0) {
+      const waitSec = Math.ceil(remainingMs / 1000);
+      setError(`Vous avez été expulsé de ce lobby. Réessayez dans ${waitSec} s.`);
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
     try {
       const result = await joinLobby({
-        data: { code: code.toUpperCase(), playerName: name },
+        data: { code: upperCode, playerName: name },
       });
       savePseudo(name);
       const { setMyPlayerId, setLobby } = useLobbyStore.getState();

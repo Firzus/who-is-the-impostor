@@ -211,7 +211,7 @@ export function RoleReveal({ role, playerName, onConfirm }: RoleRevealProps) {
         aria-hidden
       />
 
-      <p className="font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground/50">
+      <p className="font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
         {playerName}
       </p>
 
@@ -220,6 +220,7 @@ export function RoleReveal({ role, playerName, onConfirm }: RoleRevealProps) {
           ref={canvasRef}
           className="pointer-events-none absolute -inset-32 z-10"
           style={{ width: "calc(100% + 16rem)", height: "calc(100% + 16rem)" }}
+          aria-hidden="true"
         />
         <div
           className="relative h-[340px] w-[240px] cursor-pointer select-none md:h-[400px] md:w-[280px]"
@@ -257,7 +258,7 @@ export function RoleReveal({ role, playerName, onConfirm }: RoleRevealProps) {
                   </div>
                   <div className="absolute -inset-2 border border-[#50C878]/10 animate-ping" style={{ animationDuration: "2s" }} />
                 </div>
-                <p className="text-xs text-muted-foreground/60 tracking-wider">
+                <p className="text-xs text-muted-foreground tracking-wider">
                   Clique pour révéler
                 </p>
               </div>
@@ -303,7 +304,7 @@ export function RoleReveal({ role, playerName, onConfirm }: RoleRevealProps) {
                   {role.charAt(0).toUpperCase() + role.slice(1)}
                 </h2>
 
-                <p className="text-center text-sm text-muted-foreground/50">
+                <p className="text-center text-sm text-muted-foreground">
                   {isImpostor
                     ? "Sabote le donjon en secret..."
                     : "Termine le donjon avec ta team !"}
@@ -318,7 +319,7 @@ export function RoleReveal({ role, playerName, onConfirm }: RoleRevealProps) {
 
       {revealed && (
         <div className="flex flex-col items-center gap-5">
-          <p className="max-w-xs text-center text-sm text-muted-foreground/50">
+          <p className="max-w-xs text-center text-sm text-muted-foreground">
             {isImpostor
               ? "Fais perdre la team sans te faire repérer..."
               : "Méfie-toi, un imposteur rôde parmi vous."}

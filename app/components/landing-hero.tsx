@@ -36,7 +36,7 @@ export function LandingTitle() {
 
 export function LandingSubtitle() {
   return (
-    <p className="max-w-sm text-center text-lg font-semibold leading-relaxed text-foreground/70 sm:text-xl">
+    <p className="max-w-sm text-center text-lg font-semibold leading-relaxed text-foreground/85 sm:text-xl">
       Un imposteur se cache parmi les aventuriers, survivrez-vous au donjon
       ?
     </p>

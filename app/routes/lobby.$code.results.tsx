@@ -51,9 +51,9 @@ function ResultsPage() {
 
   if (error) {
     return (
-      <div className="flex min-h-screen items-center justify-center px-4">
+      <main id="main-content" className="flex min-h-screen items-center justify-center px-4">
         <div className="text-center space-y-4">
-          <p className="text-sm text-destructive">{error}</p>
+          <p className="text-sm text-destructive" role="alert">{error}</p>
           <button
             onClick={handleReturnHome}
             className="text-sm text-muted-foreground underline"
@@ -61,30 +61,30 @@ function ResultsPage() {
             Retour à l&apos;accueil
           </button>
         </div>
-      </div>
+      </main>
     );
   }
 
   if (!results) {
     return (
-      <div className="flex min-h-screen items-center justify-center px-4">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-5 w-5 animate-spin text-primary/60" />
+      <main id="main-content" className="flex min-h-screen items-center justify-center px-4">
+        <div className="flex flex-col items-center gap-4" role="status">
+          <Loader2 className="h-5 w-5 animate-spin text-primary/60" aria-hidden="true" />
           <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
             Chargement des résultats...
           </p>
         </div>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4 py-8">
+    <main id="main-content" className="flex min-h-screen items-center justify-center px-4 py-8">
       <GameResults
         players={results}
         myPlayerId={myPlayerId}
         onReturnHome={handleReturnHome}
       />
-    </div>
+    </main>
   );
 }

@@ -5,7 +5,7 @@
 export const LOBBY_TTL_HOURS = 2;
 
 /** Default kick rejoin cooldown when KICK_COOLDOWN_SECONDS is unset or invalid. */
-export const DEFAULT_KICK_COOLDOWN_SECONDS = 10;
+export const DEFAULT_KICK_COOLDOWN_SECONDS = 30;
 
 /** Max impostors configurable in lobby settings (host UI). */
 export const MAX_IMPOSTOR_COUNT = 3;

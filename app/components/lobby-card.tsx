@@ -68,7 +68,7 @@ export const LobbyCard = memo(function LobbyCard({
             : "border-border/40 bg-card/30 hover:border-border/60 hover:bg-card/50"
         )}
       >
-        <Avatar className="h-9 w-9">
+        <Avatar className="h-9 w-9" aria-hidden="true">
           <AvatarFallback>
             {player.isHost ? (
               <Crown className="h-4 w-4 text-[#50C878]" />

@@ -92,7 +92,7 @@ export function LobbySettings({
             </h3>
             <p
               ref={infoRef}
-              className="text-[13px] leading-relaxed text-foreground/70"
+              className="text-[13px] leading-relaxed text-foreground/85"
             >
               Minimum{" "}
               <span className="font-semibold text-foreground/90">{minPlayers} joueurs</span>
@@ -124,7 +124,7 @@ export function LobbySettings({
             <span className="font-mono text-xl font-black tabular-nums text-foreground">
               {impostorCount}
             </span>
-            <span className="text-foreground/30 mx-0.5 text-sm">/</span>
+            <span className="text-foreground/60 mx-0.5 text-sm" aria-hidden="true">/</span>
             <SwordIcon className="h-5 w-5 text-[#f5d060]" aria-hidden />
             <span className="font-mono text-xl font-black tabular-nums text-foreground">
               {adventurerCount}
@@ -186,7 +186,7 @@ export function LobbySettings({
         {/* Stepper / Display */}
         {isHost ? (
           <div className="space-y-3">
-            <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-foreground/60">
+            <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-foreground/80">
               Nombre d&apos;imposteurs
             </p>
             <div
@@ -205,10 +205,10 @@ export function LobbySettings({
                       disabled={disabled}
                       onClick={() => void onImpostorCountChange(n)}
                       className={cn(
-                        "relative flex h-14 flex-1 items-center justify-center font-mono text-xl font-black tabular-nums transition-all duration-300 cursor-pointer",
+                        "relative flex h-14 flex-1 items-center justify-center font-mono text-xl font-black tabular-nums transition-all duration-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#50C878]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                         active
                           ? "text-[#50C878]"
-                          : "text-foreground/40 hover:text-foreground/70",
+                          : "text-foreground/75 hover:text-foreground/90",
                         disabled && !active && "pointer-events-none opacity-20"
                       )}
                       style={{
@@ -249,10 +249,10 @@ export function LobbySettings({
               {impostorCount}
             </span>
             <div className="flex flex-col">
-              <span className="text-sm font-semibold text-foreground/80">
+              <span className="text-sm font-semibold text-foreground/90">
                 imposteur{impostorCount > 1 ? "s" : ""}
               </span>
-              <span className="text-xs text-foreground/50">
+              <span className="text-xs text-foreground/70">
                 défini par l&apos;hôte
               </span>
             </div>

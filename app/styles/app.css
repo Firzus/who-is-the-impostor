@@ -265,6 +265,45 @@
     pointer-events: none;
     transition: opacity 0.3s;
   }
+
+  @keyframes lobby-scan {
+    0% {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+    10% {
+      opacity: 1;
+    }
+    90% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(400%);
+      opacity: 0;
+    }
+  }
+
+  .lobby-scan-line {
+    animation: lobby-scan 4s ease-in-out infinite;
+  }
+
+  @keyframes lobby-corner-pulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.8; }
+  }
+
+  .lobby-corner-pulse {
+    animation: lobby-corner-pulse 2.5s ease-in-out infinite;
+  }
+
+  @keyframes status-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .status-blink {
+    animation: status-blink 1.8s ease-in-out infinite;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -281,7 +320,10 @@
   .animate-spin,
   .animate-ping,
   .animate-pulse-glow,
-  .animate-float {
+  .animate-float,
+  .lobby-scan-line,
+  .lobby-corner-pulse,
+  .status-blink {
     animation: none !important;
   }
 

@@ -22,8 +22,8 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:postgres@db:5432/impostor
       NODE_ENV: production
-      # Optional: seconds before a kicked player can rejoin (default: 10)
-      # KICK_COOLDOWN_SECONDS: "10"
+      # Optional: seconds before a kicked player can rejoin (default: 30)
+      # KICK_COOLDOWN_SECONDS: "30"
     depends_on:
       - db
 

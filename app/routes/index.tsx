@@ -8,6 +8,8 @@ import {
   LandingTitle,
   LandingSubtitle,
 } from "@/components/landing-hero";
+import { HowToPlay } from "@/components/how-to-play";
+import { ScrollIndicator } from "@/components/scroll-indicator";
 import { consumeLobbyFlashMessage } from "@/lib/lobby-flash";
 
 export const Route = createFileRoute("/")(
@@ -75,8 +77,9 @@ function LandingPage() {
   }, []);
 
   return (
-    <div className="flex flex-col items-center">
-      <main className="flex min-h-screen w-full flex-col items-center justify-center px-4 py-8">
+    <div id="main-content" className="flex flex-col items-center">
+      {/* Hero — full viewport */}
+      <main className="relative flex min-h-screen w-full flex-col items-center justify-center px-4 py-8">
         <div className="flex w-full max-w-2xl flex-1 flex-col items-center justify-center">
           <div className="flex flex-col items-center gap-8 text-center">
             <div ref={titleRef} className="w-full opacity-0">
@@ -96,12 +99,29 @@ function LandingPage() {
           </div>
         </div>
 
-        <div ref={footerTagRef} className="mt-auto pb-4 opacity-0">
-          <p className="text-center font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground/65">
+        <div ref={footerTagRef} className="mt-auto pb-16 opacity-0">
+          <p className="text-center font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
             {"Qui est l'imposteur — jeu communautaire Dofus"}
           </p>
         </div>
+
+        <ScrollIndicator />
       </main>
+
+      {/* How to play section */}
+      <HowToPlay />
+
+      {/* Bottom CTA */}
+      <section className="flex w-full flex-col items-center gap-6 px-4 pb-24 pt-8" aria-label="Rejoindre une partie">
+        <div className="h-px w-24 bg-linear-to-r from-transparent via-[#50C878]/20 to-transparent" />
+        <p className="max-w-sm text-center text-base font-semibold text-foreground/80">
+          Prêt à trahir vos amis&nbsp;?
+        </p>
+        <LandingActions
+          onCreate={() => setShowCreate(true)}
+          onJoin={() => setShowJoin(true)}
+        />
+      </section>
 
       <CreateLobbyDialog open={showCreate} onOpenChange={setShowCreate} />
       <JoinLobbyDialog open={showJoin} onOpenChange={setShowJoin} />

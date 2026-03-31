@@ -52,18 +52,18 @@ export function NotFoundPage() {
   const router = useRouter();
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center px-4 py-8">
+    <main id="main-content" className="relative flex min-h-screen flex-col items-center justify-center px-4 py-8">
       <FloatingRunes />
 
       <div className="relative z-10 flex max-w-lg flex-col items-center text-center">
-        <div className="relative mb-6">
+        <div className="relative mb-6" aria-hidden="true">
           <div className="absolute -inset-8 bg-[radial-gradient(circle,rgba(80,200,120,0.06)_0%,transparent_70%)]" />
           <SkullIcon className="relative h-20 w-20 text-[#50C878]/15 drop-shadow-[0_0_30px_rgba(80,200,120,0.1)]" />
         </div>
 
         <HorizontalRune />
 
-        <p className="mt-6 font-mono text-[10px] uppercase tracking-[0.35em] text-muted-foreground/50">
+        <p className="mt-6 font-mono text-[10px] uppercase tracking-[0.35em] text-muted-foreground">
           Erreur 404
         </p>
 
@@ -71,10 +71,10 @@ export function NotFoundPage() {
           <span className="text-emerald-gradient">Chemin perdu</span>
         </h1>
 
-        <p className="mt-4 max-w-xs text-base leading-relaxed text-foreground/50">
+        <p className="mt-4 max-w-xs text-base leading-relaxed text-foreground/75">
           Ce passage du donjon n'existe pas.
           <br />
-          <span className="font-display italic text-foreground/60">
+          <span className="font-display italic text-foreground/85">
             L'imposteur a peut-être brouillé les pistes...
           </span>
         </p>
@@ -96,13 +96,13 @@ export function NotFoundPage() {
           </Button>
         </div>
 
-        <div className="mt-12 flex items-center gap-4 text-muted-foreground/20">
+        <div className="mt-12 flex items-center gap-4 text-muted-foreground/20" aria-hidden="true">
           <RuneGlyph char="I" className="text-xl" />
           <SwordIcon className="h-5 w-5 rotate-180 opacity-30" />
           <RuneGlyph char="V" className="text-xl" />
         </div>
       </div>
-    </div>
+    </main>
   );
 }
 
@@ -113,11 +113,11 @@ export function ErrorPage({ error }: { error: unknown }) {
     error instanceof Error ? error.message : "Une erreur inattendue est survenue.";
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center px-4 py-8">
+    <main id="main-content" className="relative flex min-h-screen flex-col items-center justify-center px-4 py-8">
       <FloatingRunes />
 
       <div className="relative z-10 flex max-w-lg flex-col items-center text-center">
-        <div className="relative mb-6">
+        <div className="relative mb-6" aria-hidden="true">
           <div className="absolute -inset-8 bg-[radial-gradient(circle,rgba(224,64,64,0.08)_0%,transparent_70%)]" />
           <SkullIcon className="relative h-20 w-20 text-impostor/20 drop-shadow-[0_0_30px_rgba(224,64,64,0.12)]" />
         </div>
@@ -128,7 +128,7 @@ export function ErrorPage({ error }: { error: unknown }) {
           <span className="h-px w-12 bg-linear-to-l from-transparent to-[#e04040]/20" />
         </div>
 
-        <p className="mt-6 font-mono text-[10px] uppercase tracking-[0.35em] text-[#e04040]/50">
+        <p className="mt-6 font-mono text-[10px] uppercase tracking-[0.35em] text-[#e04040]">
           Erreur fatale
         </p>
 
@@ -136,16 +136,16 @@ export function ErrorPage({ error }: { error: unknown }) {
           <span className="text-gradient-impostor">Le donjon s'effondre</span>
         </h1>
 
-        <p className="mt-4 max-w-xs text-base leading-relaxed text-foreground/50">
+        <p className="mt-4 max-w-xs text-base leading-relaxed text-foreground/75">
           Quelque chose a mal tourné.
           <br />
-          <span className="font-display italic text-foreground/60">
+          <span className="font-display italic text-foreground/85">
             L'imposteur a saboté le mécanisme...
           </span>
         </p>
 
         <div className="glass glass-border mt-6 w-full max-w-sm px-4 py-3">
-          <p className="truncate text-left font-mono text-xs text-[#e04040]/70">
+          <p className="truncate text-left font-mono text-xs text-[#e04040]" role="alert">
             {message}
           </p>
         </div>
@@ -166,6 +166,6 @@ export function ErrorPage({ error }: { error: unknown }) {
           </Button>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

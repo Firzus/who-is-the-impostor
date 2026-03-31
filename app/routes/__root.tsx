@@ -105,6 +105,12 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
         <HeadContent />
       </head>
       <body className="min-h-screen bg-background text-foreground antialiased">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-200 focus:px-4 focus:py-2 focus:bg-[#50C878] focus:text-[#050f08] focus:font-bold focus:text-sm focus:tracking-wide"
+        >
+          Aller au contenu principal
+        </a>
         <ClientOnly>
           <Suspense fallback={null}>
             <ShaderBackground />

@@ -83,7 +83,7 @@ export function GameResults({
         <h1 className="font-display text-2xl font-bold tracking-tight md:text-3xl text-emerald-gradient">
           Résultats de la partie
         </h1>
-        <p className="text-sm text-muted-foreground/60">
+        <p className="text-sm text-muted-foreground">
           {impostors.length} imposteur{impostors.length > 1 ? "s" : ""} parmi{" "}
           {players.length} joueurs
         </p>
@@ -120,12 +120,12 @@ export function GameResults({
                 >
                   {isRevealed ? (
                     isImpostor ? (
-                      <SkullIcon className="h-5 w-5 text-[#e04040]" />
+                      <SkullIcon className="h-5 w-5 text-[#e04040]" aria-hidden="true" />
                     ) : (
-                      <SwordIcon className="h-5 w-5 text-[#D4A017]" />
+                      <SwordIcon className="h-5 w-5 text-[#D4A017]" aria-hidden="true" />
                     )
                   ) : (
-                    <span className="text-muted-foreground/40">?</span>
+                    <span className="text-muted-foreground" aria-hidden="true">?</span>
                   )}
                 </div>
 
@@ -135,10 +135,10 @@ export function GameResults({
                       {player.name}
                     </span>
                     {player.isHost && (
-                      <Crown className="h-3 w-3 text-[#50C878]/60" />
+                      <Crown className="h-3 w-3 text-[#50C878]/60" aria-hidden="true" />
                     )}
                     {isMe && (
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#50C878]/60">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#50C878]">
                         Toi
                       </span>
                     )}
@@ -147,7 +147,7 @@ export function GameResults({
                     <span
                       className={cn(
                         "text-xs font-medium uppercase tracking-wider",
-                        isImpostor ? "text-[#e04040]/70" : "text-[#D4A017]/70"
+                        isImpostor ? "text-[#e04040]" : "text-[#D4A017]"
                       )}
                     >
                       {isImpostor ? "Imposteur" : "Aventurier"}
