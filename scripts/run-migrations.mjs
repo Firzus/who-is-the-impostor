@@ -2,14 +2,11 @@
  * Applies Drizzle migrations from ./drizzle (run before server in Docker, or manually in dev).
  * Requires DATABASE_URL.
  */
-import { config } from "dotenv";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import postgres from "postgres";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-
-config();
 
 const url = process.env.DATABASE_URL;
 if (!url) {
