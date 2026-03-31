@@ -42,8 +42,12 @@ export function LobbyShare({ code, streamerMode = false, buttonClassName }: Lobb
     void generateQrDataUrl(lobbyUrl).then(setQrDataUrl);
   }, [open, lobbyUrl]);
 
+  const isMobile =
+    typeof navigator !== "undefined" &&
+    /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
   const handleNativeShare = async () => {
-    if (navigator.share) {
+    if (isMobile && navigator.share) {
       try {
         await navigator.share({ title: "Qui est l'imposteur", text: shareText });
       } catch { }
@@ -84,7 +88,7 @@ export function LobbyShare({ code, streamerMode = false, buttonClassName }: Lobb
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex flex-col items-center gap-4">
+          <div className="flex flex-col items-center gap-4 min-w-0">
             {qrDataUrl ? (
               <img
                 src={qrDataUrl}
@@ -98,8 +102,8 @@ export function LobbyShare({ code, streamerMode = false, buttonClassName }: Lobb
             )}
 
             <div className="w-full space-y-2">
-              <div className="flex items-center gap-2 border border-border/40 bg-background/40 px-3 py-2">
-                <span className="flex-1 truncate font-mono text-xs text-muted-foreground">
+              <div className="flex items-center gap-2 overflow-hidden border border-border/40 bg-background/40 px-3 py-2">
+                <span className="min-w-0 flex-1 truncate font-mono text-xs text-muted-foreground">
                   {streamerMode ? maskUrl(lobbyUrl) : lobbyUrl}
                 </span>
                 <Button
