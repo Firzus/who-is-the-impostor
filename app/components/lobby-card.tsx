@@ -1,7 +1,5 @@
 import { useState, useRef, useEffect, memo } from "react";
 import { getGsap } from "@/lib/gsap";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -13,7 +11,7 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
-import { User, Crown, UserX, ArrowRightLeft } from "lucide-react";
+import { Crown, UserX, ArrowRightLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { LobbyPlayer } from "@/stores/lobby-store";
 
@@ -45,9 +43,9 @@ export const LobbyCard = memo(function LobbyCard({
     void getGsap().then((gsap) =>
       gsap.fromTo(
         el,
-        { opacity: 0, x: -16, scale: 0.97 },
-        { opacity: 1, x: 0, scale: 1, duration: 0.4, ease: "power2.out" }
-      )
+        { opacity: 0, x: -12, scale: 0.98 },
+        { opacity: 1, x: 0, scale: 1, duration: 0.35, ease: "power2.out" },
+      ),
     );
   }, []);
 
@@ -57,62 +55,75 @@ export const LobbyCard = memo(function LobbyCard({
     setConfirmOpen(false);
   };
 
+  const initial = player.name.charAt(0).toUpperCase();
+
   return (
     <>
       <div
         ref={cardRef}
         className={cn(
-          "group flex items-center gap-3 border p-3 transition-all duration-200",
+          "group flex items-center gap-3 px-3 py-2.5 transition-all duration-200 sm:px-4 sm:py-3",
           isMe
-            ? "border-[#50C878]/15 bg-[#50C878]/3 glow-emerald"
-            : "border-border/40 bg-card/30 hover:border-border/60 hover:bg-card/50"
+            ? "bg-emerald/4"
+            : "hover:bg-white/2",
         )}
       >
-        <Avatar className="h-9 w-9" aria-hidden="true">
-          <AvatarFallback>
-            {player.isHost ? (
-              <Crown className="h-4 w-4 text-[#50C878]" />
-            ) : (
-              <User className="h-4 w-4 text-muted-foreground" />
-            )}
-          </AvatarFallback>
-        </Avatar>
+        {/* Avatar circle */}
+        <div
+          className={cn(
+            "flex h-8 w-8 shrink-0 items-center justify-center font-heading text-xs font-bold",
+            player.isHost
+              ? "border border-emerald/30 bg-emerald/10 text-emerald"
+              : isMe
+                ? "border border-emerald/20 bg-emerald/5 text-emerald/70"
+                : "border border-border/40 bg-white/3 text-muted-foreground",
+          )}
+          aria-hidden="true"
+        >
+          {player.isHost ? (
+            <Crown className="h-3.5 w-3.5" />
+          ) : (
+            initial
+          )}
+        </div>
 
-        <div className="flex-1 min-w-0">
-          <span className="block truncate text-sm font-semibold text-foreground">
+        {/* Name */}
+        <div className="min-w-0 flex-1">
+          <span
+            className={cn(
+              "block truncate text-sm font-semibold",
+              isMe ? "text-foreground" : "text-foreground/85",
+            )}
+          >
             {player.name}
           </span>
         </div>
 
-        <div className="flex shrink-0 items-center gap-2">
+        {/* Tags + actions */}
+        <div className="flex shrink-0 items-center gap-1.5">
           {player.isHost && (
-            <Badge
-              variant="default"
-              className="text-[10px] font-bold uppercase tracking-wider"
-            >
+            <span className="font-mono text-[9px] font-bold uppercase tracking-[0.15em] text-emerald/60">
               Hôte
-            </Badge>
+            </span>
           )}
           {isMe && (
-            <Badge
-              variant="outline"
-              className="text-[10px] font-bold uppercase tracking-wider"
-            >
+            <span className="font-mono text-[9px] font-bold uppercase tracking-[0.15em] text-emerald/40">
               Toi
-            </Badge>
+            </span>
           )}
+
           {onTransferHost && !player.isHost && !isMe && (
             <Button
               type="button"
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-muted-foreground hover:bg-[#50C878]/10 hover:text-[#50C878]"
+              className="h-7 w-7 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:bg-emerald/10 hover:text-emerald"
               aria-label={`Transférer l'hôte à ${player.name}`}
               onClick={() => void onTransferHost(player.id)}
               disabled={transferLoading}
               title="Transférer l'hôte"
             >
-              <ArrowRightLeft className="h-3.5 w-3.5" />
+              <ArrowRightLeft className="h-3 w-3" />
             </Button>
           )}
           {showKick && !player.isHost && onKick && (
@@ -120,12 +131,12 @@ export const LobbyCard = memo(function LobbyCard({
               type="button"
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+              className="h-7 w-7 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive"
               aria-label={`Expulser ${player.name}`}
               onClick={() => setConfirmOpen(true)}
               disabled={kickLoading}
             >
-              <UserX className="h-4 w-4" />
+              <UserX className="h-3 w-3" />
             </Button>
           )}
         </div>

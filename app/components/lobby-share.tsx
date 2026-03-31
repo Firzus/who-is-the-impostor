@@ -25,7 +25,11 @@ async function generateQrDataUrl(url: string): Promise<string> {
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 }
 
-export function LobbyShare({ code, streamerMode = false, buttonClassName }: LobbyShareProps) {
+export function LobbyShare({
+  code,
+  streamerMode = false,
+  buttonClassName,
+}: LobbyShareProps) {
   const [open, setOpen] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
@@ -49,7 +53,10 @@ export function LobbyShare({ code, streamerMode = false, buttonClassName }: Lobb
   const handleNativeShare = async () => {
     if (isMobile && navigator.share) {
       try {
-        await navigator.share({ title: "Qui est l'imposteur", text: shareText });
+        await navigator.share({
+          title: "Qui est l'imposteur",
+          text: shareText,
+        });
       } catch { }
     } else {
       setOpen(true);
@@ -64,23 +71,25 @@ export function LobbyShare({ code, streamerMode = false, buttonClassName }: Lobb
 
   return (
     <>
-      <Button
+      <button
         type="button"
-        variant="ghost"
-        size="icon"
         onClick={handleNativeShare}
         title="Partager le lobby"
         aria-label="Partager le lobby"
-        className={buttonClassName ?? "text-muted-foreground hover:text-[#50C878]"}
+        className={
+          buttonClassName ??
+          "cursor-pointer text-muted-foreground transition-colors hover:text-emerald"
+        }
       >
         <Share2 className="h-3.5 w-3.5" />
-      </Button>
+        <span>Partager</span>
+      </button>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-xs">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <QrCode className="h-4 w-4 text-[#50C878]/60" />
+              <QrCode className="h-4 w-4 text-emerald/60" />
               Partager le lobby
             </DialogTitle>
             <DialogDescription>
@@ -88,16 +97,22 @@ export function LobbyShare({ code, streamerMode = false, buttonClassName }: Lobb
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex flex-col items-center gap-4 min-w-0">
+          <div className="flex min-w-0 flex-col items-center gap-4">
             {qrDataUrl ? (
               <img
                 src={qrDataUrl}
                 alt={`QR code pour rejoindre le lobby ${code}`}
-                className="w-40 h-40 bg-white p-2"
+                className="h-40 w-40 bg-white p-2"
               />
             ) : (
-              <div className="w-40 h-40 bg-white/10 flex items-center justify-center" role="status">
-                <QrCode className="h-8 w-8 animate-pulse text-muted-foreground" aria-hidden="true" />
+              <div
+                className="flex h-40 w-40 items-center justify-center bg-white/10"
+                role="status"
+              >
+                <QrCode
+                  className="h-8 w-8 animate-pulse text-muted-foreground"
+                  aria-hidden="true"
+                />
               </div>
             )}
 
@@ -115,7 +130,7 @@ export function LobbyShare({ code, streamerMode = false, buttonClassName }: Lobb
                   aria-label="Copier le lien"
                 >
                   {linkCopied ? (
-                    <Check className="h-3.5 w-3.5 text-[#50C878]" />
+                    <Check className="h-3.5 w-3.5 text-emerald" />
                   ) : (
                     <Link className="h-3.5 w-3.5" />
                   )}
