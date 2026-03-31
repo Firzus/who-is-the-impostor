@@ -86,8 +86,8 @@ export function LobbySettings({
 
       <div className="relative z-10 p-5 space-y-5">
         {/* Header row */}
-        <div className="flex items-start justify-between gap-3">
-          <div className="space-y-1.5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0 space-y-1.5">
             <div className="flex items-center gap-2">
               <h3 className="font-heading text-[13px] font-bold uppercase tracking-[0.15em] text-foreground">
                 Configuration
@@ -119,7 +119,7 @@ export function LobbySettings({
 
           {/* Role counters */}
           <div
-            className="flex items-center gap-2 px-3 py-2"
+            className="flex items-center gap-2 px-3 py-2 self-start sm:self-auto"
             style={{
               background: "rgba(255,255,255,0.03)",
               border: "1px solid rgba(255,255,255,0.06)",
