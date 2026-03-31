@@ -1,20 +1,10 @@
 import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { useLobbyStore } from "@/stores/lobby-store";
-import { Trophy, Home } from "lucide-react";
+import { Home } from "lucide-react";
 
 export function RevealConfirmation() {
   const navigate = useNavigate();
-  const lobby = useLobbyStore((s) => s.lobby);
-  const isFinished = lobby?.status === "finished";
-
-  const handleResults = () => {
-    if (!lobby) return;
-    navigate({
-      to: "/lobby/$code/results",
-      params: { code: lobby.code },
-    });
-  };
 
   const handleHome = () => {
     useLobbyStore.getState().reset();
@@ -31,25 +21,13 @@ export function RevealConfirmation() {
       </p>
       <div className="h-px w-16 mx-auto bg-linear-to-r from-transparent via-border to-transparent mb-4" />
 
-      {isFinished ? (
-        <div className="flex flex-col items-center gap-3">
-          <p className="font-mono text-[10px] text-[#50C878] uppercase tracking-wider mb-1">
-            Tous les joueurs ont vu leur rôle
-          </p>
-          <Button onClick={handleResults} size="sm" variant="outline">
-            <Trophy className="mr-1.5 h-3.5 w-3.5" />
-            Voir les résultats
-          </Button>
-          <Button onClick={handleHome} size="sm" variant="ghost" className="text-muted-foreground">
-            <Home className="mr-1.5 h-3.5 w-3.5" />
-            Retour à l&apos;accueil
-          </Button>
-        </div>
-      ) : (
-        <p className="font-mono text-[10px] text-muted-foreground uppercase tracking-wider">
-          Tu peux fermer cette page.
-        </p>
-      )}
+      <p className="font-mono text-[10px] text-muted-foreground uppercase tracking-wider mb-3">
+        Tu peux fermer cette page.
+      </p>
+      <Button onClick={handleHome} size="sm" variant="ghost" className="text-muted-foreground">
+        <Home className="mr-1.5 h-3.5 w-3.5" />
+        Retour à l&apos;accueil
+      </Button>
     </div>
   );
 }
