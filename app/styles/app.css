@@ -389,6 +389,117 @@
     animation: status-blink 1.8s ease-in-out infinite;
   }
 
+  /* ── Landing cinematic ── */
+
+  .hero-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: min(600px, 100vw);
+    height: 400px;
+    transform: translate(-50%, -60%);
+    background: radial-gradient(
+      ellipse at center,
+      rgba(80, 200, 120, 0.07) 0%,
+      rgba(80, 200, 120, 0.03) 40%,
+      transparent 70%
+    );
+    pointer-events: none;
+    animation: hero-glow-pulse 6s ease-in-out infinite;
+    z-index: -1;
+  }
+
+  @keyframes hero-glow-pulse {
+    0%,
+    100% {
+      opacity: 0.6;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
+  .hero-shimmer-btn {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-shimmer-btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      transparent 30%,
+      rgba(255, 255, 255, 0.1) 45%,
+      rgba(255, 255, 255, 0.15) 50%,
+      rgba(255, 255, 255, 0.1) 55%,
+      transparent 70%
+    );
+    transform: translateX(-150%);
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .hero-shimmer-btn:not(:disabled):hover::before {
+    transform: translateX(150%);
+  }
+
+  @keyframes line-flow {
+    0% {
+      transform: scaleY(0);
+      transform-origin: top;
+      opacity: 0;
+    }
+    20% {
+      opacity: 1;
+    }
+    50% {
+      transform: scaleY(1);
+      transform-origin: top;
+    }
+    50.1% {
+      transform-origin: bottom;
+    }
+    100% {
+      transform: scaleY(0);
+      transform-origin: bottom;
+      opacity: 0;
+    }
+  }
+
+  .animate-line-flow {
+    animation: line-flow 2.5s ease-in-out infinite;
+  }
+
+  @keyframes shimmer-slide {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  .animate-shimmer-slide {
+    animation: shimmer-slide 3s ease-in-out infinite;
+  }
+
+  @keyframes rune-diamond-pulse {
+    0%,
+    100% {
+      opacity: 0.35;
+      transform: rotate(45deg) scale(1);
+    }
+    50% {
+      opacity: 0.7;
+      transform: rotate(45deg) scale(1.2);
+    }
+  }
+
+  .animate-rune-pulse {
+    animation: rune-diamond-pulse 4s ease-in-out infinite;
+  }
+
   /* ── Lobby redesign ── */
 
   .lobby-hero {
@@ -506,6 +617,10 @@
   .animate-skull-breathe,
   .animate-ghost-404,
   .animate-rune-shimmer,
+  .animate-line-flow,
+  .animate-shimmer-slide,
+  .animate-rune-pulse,
+  .hero-glow,
   .lobby-scan-line,
   .lobby-corner-pulse,
   .status-blink {
