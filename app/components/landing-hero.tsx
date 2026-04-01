@@ -22,7 +22,7 @@ export function LandingTitle() {
 
       <RuneDivider />
 
-      <h1 className="mt-6 flex flex-col items-center font-display text-center font-bold leading-[0.9] tracking-tight sm:mt-8">
+      <h1 className="mt-6 flex flex-col items-center font-display text-center font-bold leading-[1.2] tracking-tight sm:mt-8">
         <span
           className="text-emerald-gradient text-[clamp(2.6rem,11vw,7.5rem)]"
         >
