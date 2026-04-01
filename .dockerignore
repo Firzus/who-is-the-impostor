@@ -6,8 +6,6 @@ node_modules
 *.md
 .env
 .env.local
-e2e
-playwright.config.ts
 vitest.config.ts
 *.test.ts
 .cursor

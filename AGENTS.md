@@ -21,7 +21,7 @@
 - **UI**: Radix UI components
 - **State**: Zustand for client state
 - **Build**: Vite 7
-- **Testing**: Vitest (unit), Playwright (E2E)
+- **Testing**: Vitest (unit)
 - **Deployment**: Docker, GitHub Actions, Dokploy
 
 ### Architecture
@@ -57,7 +57,6 @@ See `.env.example`:
 | `VITE_SITE_URL`         | No       | Public site URL for SEO (no trailing slash) |
 | `DISABLE_LOBBY_CLEANUP` | No       | Set to `1` to disable periodic lobby purge  |
 | `KICK_COOLDOWN_SECONDS` | No       | Kick cooldown in seconds (default: 30)      |
-| `SESSION_SECRET`        | CI only  | Session secret for E2E tests                |
 
 ## Development Workflow
 
@@ -95,7 +94,6 @@ pnpm db:studio            # Interactive explorer
 - `/app/stores/` - Zustand state management
 - `/app/styles/` - Tailwind CSS + custom utilities
 - `/app/shaders/` - WebGL shaders
-- `/e2e/` - Playwright E2E tests
 - `/drizzle/` - Generated migrations
 
 ## Code Style Guidelines
@@ -158,16 +156,6 @@ Never import server code in client components.
 - Watch mode: `pnpm test:watch`
 - Run a specific test: `pnpm vitest run -t "<test name>"`
 
-### E2E tests (Playwright)
-
-- Config: `playwright.config.ts`
-- Test files: `e2e/*.spec.ts`
-- Run all: `pnpm test:e2e`
-- Interactive: `pnpm test:e2e:ui`
-- Browser: Chromium only, workers: 1 (sequential)
-- Auto-starts dev server on port 3000
-- Retries: 2 on CI, 0 locally
-
 ### Before submitting
 
 Always run all checks:
@@ -176,7 +164,7 @@ Always run all checks:
 pnpm typecheck && pnpm test
 ```
 
-CI also runs: build, Playwright E2E, Trivy security scan, Semgrep SAST analysis.
+CI also runs: build, Trivy security scan, Semgrep SAST analysis.
 
 ## Build and Deployment
 
@@ -200,7 +188,6 @@ Runtime runs migrations then starts server: `node scripts/run-migrations.mjs && 
 
 CI/CD (GitHub Actions):
 
-- `e2e.yml`: E2E tests with PostgreSQL service on push/PR to main
 - `publish.yml`: Full pipeline (typecheck + test + build + Trivy + Semgrep + Docker push to GHCR + Dokploy deploy)
 - Docker image tags: `latest` on main, `dev` on dev branch, short SHA for all pushes
 
@@ -213,7 +200,6 @@ pnpm start        # Run production build
 pnpm typecheck    # Type check only
 pnpm test         # Unit tests
 pnpm test:watch   # Watch mode
-pnpm test:e2e     # E2E tests
 pnpm db:push      # Push schema to DB
 pnpm db:generate  # Generate migration
 pnpm db:migrate   # Run migrations
@@ -255,7 +241,7 @@ Adding an API endpoint:
 1. Create /app/routes/api.<name>.ts
 2. Use createServerFn() or return response
 3. Add Zod validation
-4. Test with E2E
+4. Add tests
 
 Modifying database schema:
 
@@ -302,14 +288,6 @@ Build fails:
 rm -rf .output dist
 pnpm typecheck
 pnpm build
-```
-
-E2E tests fail:
-
-```bash
-pnpm dev
-pnpm exec playwright install
-pnpm db:push
 ```
 
 ## Requirements
