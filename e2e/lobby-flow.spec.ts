@@ -8,18 +8,24 @@ async function waitForAnimationsReady(page: Page) {
   });
 }
 
+/** Scope selectors to the hero <main> to avoid duplicate bottom-CTA buttons. */
+function heroSection(page: Page) {
+  return page.getByRole("main");
+}
+
 test.describe("Lobby flow", () => {
   test("landing page loads with title and action buttons", async ({ page }) => {
     await page.goto("/");
     await expect(page.locator("h1")).toContainText("imposteur");
-    await expect(page.getByRole("button", { name: "Créer une partie" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Rejoindre par code" })).toBeVisible();
+    const hero = heroSection(page);
+    await expect(hero.getByRole("button", { name: "Créer une partie" })).toBeVisible();
+    await expect(hero.getByRole("button", { name: "Rejoindre par code" })).toBeVisible();
   });
 
   test("create lobby dialog opens and requires pseudo", async ({ page }) => {
     await page.goto("/");
     await waitForAnimationsReady(page);
-    await page.getByRole("button", { name: "Créer une partie" }).click();
+    await heroSection(page).getByRole("button", { name: "Créer une partie" }).click();
 
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible();
@@ -32,7 +38,7 @@ test.describe("Lobby flow", () => {
   test("join lobby dialog opens and validates code length", async ({ page }) => {
     await page.goto("/");
     await waitForAnimationsReady(page);
-    await page.getByRole("button", { name: "Rejoindre par code" }).click();
+    await heroSection(page).getByRole("button", { name: "Rejoindre par code" }).click();
 
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible();
@@ -45,7 +51,7 @@ test.describe("Lobby flow", () => {
   test("host can create lobby and see lobby page", async ({ page }) => {
     await page.goto("/");
     await waitForAnimationsReady(page);
-    await page.getByRole("button", { name: "Créer une partie" }).click();
+    await heroSection(page).getByRole("button", { name: "Créer une partie" }).click();
 
     const dialog = page.getByRole("dialog");
     await dialog.getByPlaceholder("Ton pseudo...").fill("TestHost");
@@ -53,7 +59,7 @@ test.describe("Lobby flow", () => {
 
     // Should navigate to lobby page
     await page.waitForURL(/\/lobby\/[A-Z0-9]{6}$/);
-    await expect(page.getByText("Code du lobby")).toBeVisible();
+    await expect(page.getByText("Code lobby")).toBeVisible();
     await expect(page.getByText("TestHost")).toBeVisible();
     await expect(page.getByText("Hôte")).toBeVisible();
   });
@@ -61,7 +67,7 @@ test.describe("Lobby flow", () => {
   test("host can see settings and player list", async ({ page }) => {
     await page.goto("/");
     await waitForAnimationsReady(page);
-    await page.getByRole("button", { name: "Créer une partie" }).click();
+    await heroSection(page).getByRole("button", { name: "Créer une partie" }).click();
 
     const dialog = page.getByRole("dialog");
     await dialog.getByPlaceholder("Ton pseudo...").fill("HostPlayer");
@@ -77,7 +83,7 @@ test.describe("Lobby flow", () => {
     await context.grantPermissions(["clipboard-read", "clipboard-write"]);
     await page.goto("/");
     await waitForAnimationsReady(page);
-    await page.getByRole("button", { name: "Créer une partie" }).click();
+    await heroSection(page).getByRole("button", { name: "Créer une partie" }).click();
 
     const dialog = page.getByRole("dialog");
     await dialog.getByPlaceholder("Ton pseudo...").fill("CopyTest");
@@ -85,6 +91,6 @@ test.describe("Lobby flow", () => {
     await page.waitForURL(/\/lobby\/[A-Z0-9]{6}$/);
 
     await page.getByRole("button", { name: "Copier le code" }).click();
-    await expect(page.getByText("Code copié !")).toBeVisible();
+    await expect(page.getByText("Code copié")).toBeVisible();
   });
 });
