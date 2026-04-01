@@ -10,7 +10,7 @@ export function LandingFooter() {
       <div className="mx-auto flex max-w-2xl flex-col items-center gap-8">
         <RuneDivider />
 
-        <span className="font-display text-sm tracking-wide text-[#50C878]/50 sm:text-base">
+        <span className="font-display text-sm tracking-wide text-[#50C878]/70 sm:text-base">
           {"Qui est l\u2019imposteur"}
         </span>
 
@@ -36,10 +36,10 @@ export function LandingFooter() {
         </nav>
 
         <div className="flex flex-col items-center gap-1.5 text-center">
-          <p className="font-mono text-[10px] leading-relaxed tracking-wide text-muted-foreground/50 sm:text-xs">
+          <p className="font-mono text-[10px] leading-relaxed tracking-wide text-[#8b8d90] sm:text-xs">
             © 2024&nbsp;-&nbsp;2026 Huzounet.
           </p>
-          <p className="max-w-xs font-mono text-[9px] leading-relaxed tracking-wide text-muted-foreground/35 sm:max-w-md sm:text-[10px]">
+          <p className="max-w-xs font-mono text-[9px] leading-relaxed tracking-wide text-[#787a7d] sm:max-w-md sm:text-[10px]">
             Certaines illustrations sont la propriété d&apos;Ankama Studio et de
             Dofus&nbsp;— Tous droits réservés.
           </p>
