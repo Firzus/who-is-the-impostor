@@ -8,43 +8,15 @@ export function ScrollIndicator() {
     <button
       type="button"
       onClick={handleClick}
-      className="group absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 cursor-pointer"
+      className="group flex cursor-pointer flex-col items-center gap-3 pb-6 sm:pb-8"
       aria-label="Découvrir comment jouer"
     >
-      <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.25em] text-foreground/70 transition-colors group-hover:text-foreground/90">
+      <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.3em] text-foreground/50 transition-colors group-hover:text-foreground/80">
         Découvrir
       </span>
-      <div className="flex flex-col items-center gap-0.5 animate-bounce">
-        <svg
-          width="20"
-          height="10"
-          viewBox="0 0 20 10"
-          fill="none"
-          className="text-[#50C878]/70 transition-colors group-hover:text-[#50C878]"
-        >
-          <path
-            d="M2 2L10 8L18 2"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-        <svg
-          width="16"
-          height="8"
-          viewBox="0 0 16 8"
-          fill="none"
-          className="text-[#50C878]/50 transition-colors group-hover:text-[#50C878]/80"
-        >
-          <path
-            d="M2 1L8 6L14 1"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
+
+      <div className="relative h-8 w-px">
+        <div className="absolute inset-0 animate-line-flow bg-linear-to-b from-[#50C878]/60 to-[#50C878]/10" />
       </div>
     </button>
   );

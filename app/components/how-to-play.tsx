@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { MaskIcon } from "@/components/icons/mask-icon";
+import { RuneDivider } from "@/components/landing-hero";
 
 interface Step {
   number: string;
@@ -12,17 +13,17 @@ interface Step {
 
 const steps: Step[] = [
   {
-    number: "1",
-    title: "Créez ou rejoignez un lobby",
+    number: "01",
+    title: "Rassemblement",
     description:
-      "L'hôte crée une partie et partage le code à 6 caractères. Les joueurs rejoignent en un clic.",
+      "L\u2019hôte crée une partie et partage le code à 6 caractères. Les joueurs rejoignent en un clic.",
     icon: (
       <svg
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
         strokeWidth={1.5}
-        className="h-8 w-8"
+        className="size-7 sm:size-8"
         aria-hidden="true"
       >
         <path
@@ -36,28 +37,26 @@ const steps: Step[] = [
     glowColor: "rgba(80, 200, 120, 0.08)",
   },
   {
-    number: "2",
-    title: "Les rôles sont distribués",
+    number: "02",
+    title: "Distribution",
     description:
-      "Chaque joueur reçoit secrètement son rôle : aventurier ou imposteur. Personne ne connaît le rôle des autres.",
-    icon: (
-      <MaskIcon className="h-8 w-8" aria-hidden="true" />
-    ),
+      "Chaque joueur reçoit secrètement son rôle\u00a0: aventurier ou imposteur. Personne ne connaît le rôle des autres.",
+    icon: <MaskIcon className="size-7 sm:size-8" aria-hidden="true" />,
     accentColor: "#d4a017",
     glowColor: "rgba(212, 160, 23, 0.08)",
   },
   {
-    number: "3",
-    title: "Survivez au donjon",
+    number: "03",
+    title: "Survie",
     description:
-      "Lancez-vous dans l'aventure sur le serveur Ombre. L'imposteur aura toutes les sales choisis pour saboter le donjon. Démasquez-le et terminez le donjon en vie pour remporter la victoire.",
+      "Lancez-vous dans l\u2019aventure sur le serveur Ombre. L\u2019imposteur sabote le donjon tandis que les aventuriers tentent de le démasquer.",
     icon: (
       <svg
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
         strokeWidth={1.5}
-        className="h-8 w-8"
+        className="size-7 sm:size-8"
         aria-hidden="true"
       >
         <path
@@ -72,43 +71,38 @@ const steps: Step[] = [
   },
 ];
 
-function StepCard({ step, index }: { step: Step; index: number }) {
+function ChapterDivider({ color }: { color: string }) {
+  return (
+    <div className="flex items-center gap-3 py-2">
+      <span
+        className="h-px w-10 sm:w-16"
+        style={{
+          background: `linear-gradient(90deg, transparent, ${color}30)`,
+        }}
+      />
+      <span
+        className="size-1.5 animate-rune-pulse"
+        style={{ backgroundColor: `${color}40` }}
+      />
+      <span
+        className="h-px w-10 sm:w-16"
+        style={{
+          background: `linear-gradient(90deg, ${color}30, transparent)`,
+        }}
+      />
+    </div>
+  );
+}
+
+function StepChapter({ step }: { step: Step }) {
   return (
     <div
-      className="step-card group relative flex flex-col items-center gap-5 p-6 text-center sm:p-8"
-      style={{
-        opacity: 0,
-        background: "rgba(10, 14, 20, 0.7)",
-        backdropFilter: "blur(16px)",
-        WebkitBackdropFilter: "blur(16px)",
-        border: `1px solid rgba(80, 200, 120, 0.08)`,
-        boxShadow: "inset 0 1px 0 rgba(80, 200, 120, 0.04), 0 0 0 1px rgba(0,0,0,0.4)",
-      }}
+      className="step-chapter flex flex-col items-center gap-5 text-center sm:gap-6"
+      style={{ opacity: 0 }}
     >
-      {/* Corner accents */}
-      <div className="pointer-events-none absolute top-0 left-0 h-3 w-3 border-t border-l" style={{ borderColor: `${step.accentColor}30` }} aria-hidden />
-      <div className="pointer-events-none absolute top-0 right-0 h-3 w-3 border-t border-r" style={{ borderColor: `${step.accentColor}30` }} aria-hidden />
-      <div className="pointer-events-none absolute bottom-0 left-0 h-3 w-3 border-b border-l" style={{ borderColor: `${step.accentColor}30` }} aria-hidden />
-      <div className="pointer-events-none absolute bottom-0 right-0 h-3 w-3 border-b border-r" style={{ borderColor: `${step.accentColor}30` }} aria-hidden />
-
-      {/* Ambient glow */}
-      <div
-        className="pointer-events-none absolute -top-12 left-1/2 h-32 w-32 -translate-x-1/2 rounded-full blur-3xl transition-opacity duration-500 opacity-0 group-hover:opacity-100"
-        style={{ background: `radial-gradient(circle, ${step.glowColor}, transparent 70%)` }}
-        aria-hidden
-      />
-
-      {/* Step number */}
-      <span
-        className="font-display text-[11px] font-bold tracking-[0.3em]"
-        style={{ color: step.accentColor }}
-      >
-        ÉTAPE {step.number}
-      </span>
-
       {/* Icon */}
       <div
-        className="flex h-16 w-16 items-center justify-center transition-transform duration-300 group-hover:scale-110"
+        className="flex size-16 items-center justify-center sm:size-[72px] md:size-20"
         style={{
           background: step.glowColor,
           border: `1px solid ${step.accentColor}20`,
@@ -118,26 +112,30 @@ function StepCard({ step, index }: { step: Step; index: number }) {
         {step.icon}
       </div>
 
-      {/* Divider */}
-      <div className="h-px w-12" style={{ background: `linear-gradient(90deg, transparent, ${step.accentColor}30, transparent)` }} />
+      {/* Number + Title */}
+      <div className="flex flex-col items-center gap-2 sm:flex-row sm:gap-4">
+        <span
+          className="font-display text-2xl font-bold sm:text-3xl"
+          style={{ color: `${step.accentColor}50` }}
+        >
+          {step.number}
+        </span>
+        <span
+          className="hidden h-4 w-px sm:block"
+          style={{ backgroundColor: `${step.accentColor}30` }}
+          aria-hidden
+        />
+        <h3
+          className="font-heading text-base font-bold uppercase tracking-[0.15em] text-foreground sm:text-lg"
+        >
+          {step.title}
+        </h3>
+      </div>
 
-      {/* Text */}
-      <h3 className="font-heading text-lg font-bold tracking-wide text-foreground">
-        {step.title}
-      </h3>
-      <p className="max-w-[280px] text-sm leading-relaxed text-foreground/80">
+      {/* Description */}
+      <p className="max-w-[300px] text-sm leading-relaxed text-foreground/70 sm:max-w-sm sm:text-base">
         {step.description}
       </p>
-
-      {/* Connector arrow (between cards) */}
-      {index < steps.length - 1 && (
-        <div className="step-connector absolute -bottom-10 left-1/2 hidden -translate-x-1/2 flex-col items-center md:flex" aria-hidden>
-          <div className="h-6 w-px" style={{ background: `linear-gradient(to bottom, ${step.accentColor}20, transparent)` }} />
-          <svg width="12" height="8" viewBox="0 0 12 8" fill="none">
-            <path d="M1 1L6 6L11 1" stroke={`${step.accentColor}40`} strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
-        </div>
-      )}
     </div>
   );
 }
@@ -145,16 +143,21 @@ function StepCard({ step, index }: { step: Step; index: number }) {
 export function HowToPlay() {
   const sectionRef = useRef<HTMLElement>(null);
   const headingRef = useRef<HTMLDivElement>(null);
-  const cardsRef = useRef<HTMLDivElement>(null);
+  const chaptersRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let cancelled = false;
 
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
     if (prefersReducedMotion) {
       if (headingRef.current) headingRef.current.style.opacity = "1";
-      const cards = cardsRef.current?.querySelectorAll<HTMLElement>(".step-card");
-      cards?.forEach((card) => { card.style.opacity = "1"; });
+      const chapters =
+        chaptersRef.current?.querySelectorAll<HTMLElement>(".step-chapter");
+      chapters?.forEach((ch) => {
+        ch.style.opacity = "1";
+      });
       return;
     }
 
@@ -170,42 +173,47 @@ export function HowToPlay() {
       if (heading) {
         gsap.fromTo(
           heading,
-          { opacity: 0, y: 40 },
+          { opacity: 0, y: 50 },
           {
             opacity: 1,
             y: 0,
-            duration: 1,
+            duration: 1.2,
             ease: "power3.out",
             scrollTrigger: {
               trigger: heading,
               start: "top 85%",
               once: true,
             },
-            onComplete: () => { heading.style.opacity = "1"; },
-          },
+            onComplete: () => {
+              heading.style.opacity = "1";
+            },
+          }
         );
       }
 
-      const cards = cardsRef.current?.querySelectorAll(".step-card");
-      if (cards) {
-        cards.forEach((card, i) => {
+      const chapters =
+        chaptersRef.current?.querySelectorAll(".step-chapter");
+      if (chapters) {
+        chapters.forEach((chapter, i) => {
           gsap.fromTo(
-            card,
-            { opacity: 0, y: 50, scale: 0.97 },
+            chapter,
+            { opacity: 0, y: 60, scale: 0.97 },
             {
               opacity: 1,
               y: 0,
               scale: 1,
-              duration: 0.9,
-              delay: i * 0.15,
+              duration: 1,
+              delay: i * 0.2,
               ease: "power3.out",
               scrollTrigger: {
-                trigger: card,
-                start: "top 85%",
+                trigger: chapter,
+                start: "top 88%",
                 once: true,
               },
-              onComplete: () => { (card as HTMLElement).style.opacity = "1"; },
-            },
+              onComplete: () => {
+                (chapter as HTMLElement).style.opacity = "1";
+              },
+            }
           );
         });
       }
@@ -219,41 +227,53 @@ export function HowToPlay() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full px-4 py-24 md:py-32"
+      className="relative w-full px-6 py-16 sm:py-20 md:py-28"
       aria-labelledby="how-to-play-heading"
     >
-      {/* Section heading */}
-      <div ref={headingRef} className="mb-16 flex flex-col items-center gap-4 md:mb-20" style={{ opacity: 0 }}>
+      {/* Heading */}
+      <div
+        ref={headingRef}
+        className="mb-14 flex flex-col items-center gap-4 sm:mb-16 md:mb-20"
+        style={{ opacity: 0 }}
+      >
         <div className="flex items-center gap-3">
-          <span className="h-px w-8 bg-linear-to-r from-transparent to-[#50C878]/30" />
-          <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-[#50C878]">
+          <span className="h-px w-6 bg-linear-to-r from-transparent to-[#50C878]/30 sm:w-8" />
+          <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.3em] text-[#50C878] sm:text-[10px]">
             Comment jouer
           </span>
-          <span className="h-px w-8 bg-linear-to-l from-transparent to-[#50C878]/30" />
+          <span className="h-px w-6 bg-linear-to-l from-transparent to-[#50C878]/30 sm:w-8" />
         </div>
 
         <h2
           id="how-to-play-heading"
-          className="font-display text-center text-2xl font-bold tracking-tight text-foreground sm:text-3xl"
+          className="font-display text-center text-xl font-bold tracking-tight text-foreground sm:text-2xl md:text-3xl"
         >
           Trois étapes vers le{" "}
           <span className="text-emerald-gradient italic">chaos</span>
         </h2>
 
-        <p className="max-w-md text-center text-sm leading-relaxed text-foreground/75">
-          Un concept simple, des trahisons mémorables. Voici comment se déroule une partie.
+        <p className="max-w-sm text-center text-sm leading-relaxed text-foreground/60 sm:max-w-md">
+          Un concept simple, des trahisons mémorables. Voici comment se
+          déroule une partie.
         </p>
 
-        <div className="mt-2 h-px w-16 bg-linear-to-r from-transparent via-[#50C878]/20 to-transparent" />
+        <div className="mt-1 h-px w-12 bg-linear-to-r from-transparent via-[#50C878]/20 to-transparent sm:mt-2 sm:w-16" />
       </div>
 
-      {/* Steps grid */}
+      {/* Chapters (vertical sequence) */}
       <div
-        ref={cardsRef}
-        className="mx-auto grid max-w-4xl gap-14 md:grid-cols-3 md:gap-8"
+        ref={chaptersRef}
+        className="mx-auto flex max-w-lg flex-col items-center gap-0 lg:max-w-xl"
       >
         {steps.map((step, i) => (
-          <StepCard key={step.number} step={step} index={i} />
+          <div key={step.number} className="flex flex-col items-center">
+            <StepChapter step={step} />
+            {i < steps.length - 1 && (
+              <div className="py-6 sm:py-8 md:py-10">
+                <ChapterDivider color={step.accentColor} />
+              </div>
+            )}
+          </div>
         ))}
       </div>
     </section>
