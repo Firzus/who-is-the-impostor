@@ -242,6 +242,80 @@
     animation: float 4s ease-in-out infinite;
   }
 
+  @keyframes drift {
+    0% {
+      transform: translate(0, 0) rotate(0deg);
+      opacity: var(--drift-opacity, 0.06);
+    }
+    25% {
+      transform: translate(6px, -10px) rotate(45deg);
+    }
+    50% {
+      transform: translate(-4px, -18px) rotate(90deg);
+      opacity: calc(var(--drift-opacity, 0.06) * 1.8);
+    }
+    75% {
+      transform: translate(8px, -8px) rotate(135deg);
+    }
+    100% {
+      transform: translate(0, 0) rotate(180deg);
+      opacity: var(--drift-opacity, 0.06);
+    }
+  }
+
+  .animate-drift {
+    animation: drift var(--drift-duration, 8s) ease-in-out infinite;
+    animation-delay: var(--drift-delay, 0s);
+  }
+
+  @keyframes skull-breathe {
+    0%,
+    100% {
+      filter: drop-shadow(0 0 20px rgba(80, 200, 120, 0.08));
+      transform: scale(1);
+    }
+    50% {
+      filter: drop-shadow(0 0 40px rgba(80, 200, 120, 0.2));
+      transform: scale(1.03);
+    }
+  }
+
+  .animate-skull-breathe {
+    animation: skull-breathe 4s ease-in-out infinite;
+  }
+
+  @keyframes ghost-404-drift {
+    0%,
+    100% {
+      transform: translateY(0);
+      opacity: 0.03;
+    }
+    50% {
+      transform: translateY(-6px);
+      opacity: 0.06;
+    }
+  }
+
+  .animate-ghost-404 {
+    animation: ghost-404-drift 6s ease-in-out infinite;
+  }
+
+  @keyframes rune-line-shimmer {
+    0% {
+      opacity: 0.15;
+    }
+    50% {
+      opacity: 0.4;
+    }
+    100% {
+      opacity: 0.15;
+    }
+  }
+
+  .animate-rune-shimmer {
+    animation: rune-line-shimmer 3s ease-in-out infinite;
+  }
+
   @keyframes pulse-glow {
     0%,
     100% {
@@ -428,6 +502,10 @@
   .animate-ping,
   .animate-pulse-glow,
   .animate-float,
+  .animate-drift,
+  .animate-skull-breathe,
+  .animate-ghost-404,
+  .animate-rune-shimmer,
   .lobby-scan-line,
   .lobby-corner-pulse,
   .status-blink {
