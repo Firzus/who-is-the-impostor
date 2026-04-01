@@ -8,9 +8,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { getGsap } from "@/lib/gsap";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { LobbyCard } from "@/components/lobby-card";
 import { LobbySettings } from "@/components/lobby-settings";
 import { useLobbyPolling } from "@/lib/lobby-events";
@@ -42,7 +40,17 @@ import { useOnboarding } from "@/lib/use-onboarding";
 import { useStreamerMode, maskCode } from "@/lib/use-streamer-mode";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Copy, Users, Loader2, LogOut, Eye, EyeOff, MonitorSmartphone } from "lucide-react";
+import {
+  Copy,
+  Users,
+  Loader2,
+  LogOut,
+  Eye,
+  EyeOff,
+  MonitorSmartphone,
+  Check,
+  Swords,
+} from "lucide-react";
 
 export const Route = createFileRoute("/lobby/$code")({
   head: () => ({
@@ -71,7 +79,9 @@ function LobbyPage() {
   const streamer = useStreamerMode();
 
   useEffect(() => setMounted(true), []);
-  useEffect(() => { preloadSounds(); }, []);
+  useEffect(() => {
+    preloadSounds();
+  }, []);
 
   const revealMatch = useMatch({
     from: "/lobby/$code/reveal",
@@ -90,7 +100,7 @@ function LobbyPage() {
     onKickedFromLobby: handleKickedFromLobby,
   });
 
-  const codeRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
   const playersRef = useRef<HTMLDivElement>(null);
   const settingsRef = useRef<HTMLDivElement>(null);
   const badgeRef = useRef<HTMLSpanElement>(null);
@@ -105,17 +115,15 @@ function LobbyPage() {
           gsap.fromTo(
             el,
             { scale: 1.3 },
-            { scale: 1, duration: 0.4, ease: "back.out(2)" }
-          )
+            { scale: 1, duration: 0.4, ease: "back.out(2)" },
+          ),
         );
       }
     }
     prevPlayerCount.current = count;
   }, [storePlayers.length]);
 
-  const isHost = storePlayers.find(
-    (p) => p.id === myPlayerId
-  )?.isHost;
+  const isHost = storePlayers.find((p) => p.id === myPlayerId)?.isHost;
 
   const impostorCount = lobby?.impostorCount ?? 1;
   const minPlayers = minPlayersForLobby(impostorCount);
@@ -130,10 +138,10 @@ function LobbyPage() {
 
   useEffect(() => {
     if (isRevealRoute) return;
-    const codeEl = codeRef.current;
+    const heroEl = heroRef.current;
     const settingsEl = settingsRef.current;
     const playersEl = playersRef.current;
-    if (!codeEl || !playersEl) return;
+    if (!heroEl || !playersEl) return;
 
     const clearOpacity = (el: HTMLElement | null) => () =>
       el?.classList.remove("opacity-0");
@@ -141,23 +149,28 @@ function LobbyPage() {
     void getGsap().then((gsap) => {
       const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
       tl.fromTo(
-        codeEl,
-        { opacity: 0, y: -24 },
-        { opacity: 1, y: 0, duration: 0.8, onComplete: clearOpacity(codeEl) }
+        heroEl,
+        { opacity: 0, y: -20 },
+        { opacity: 1, y: 0, duration: 0.7, onComplete: clearOpacity(heroEl) },
       );
       if (settingsEl && lobby) {
         tl.fromTo(
           settingsEl,
           { opacity: 0, y: 16 },
-          { opacity: 1, y: 0, duration: 0.65, onComplete: clearOpacity(settingsEl) },
-          "-=0.45"
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.55,
+            onComplete: clearOpacity(settingsEl),
+          },
+          "-=0.4",
         );
       }
       tl.fromTo(
         playersEl,
-        { opacity: 0, y: 24 },
-        { opacity: 1, y: 0, duration: 0.8, onComplete: clearOpacity(playersEl) },
-        "-=0.35"
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.7, onComplete: clearOpacity(playersEl) },
+        "-=0.3",
       );
     });
   }, [isRevealRoute, lobby?.id]);
@@ -203,32 +216,39 @@ function LobbyPage() {
       });
       const current = useLobbyStore.getState().lobby;
       if (current) {
-        useLobbyStore.getState().setLobby({ ...current, impostorCount: count });
+        useLobbyStore
+          .getState()
+          .setLobby({ ...current, impostorCount: count });
       }
     } catch (err: any) {
-      toast.error(err.message ?? "Impossible de mettre à jour les paramètres");
+      toast.error(
+        err.message ?? "Impossible de mettre à jour les paramètres",
+      );
     } finally {
       setSettingsUpdating(false);
     }
   };
 
-  const handleKickPlayer = useCallback(async (targetPlayerId: string) => {
-    if (!lobby || !myPlayerId) return;
-    setKickLoading(true);
-    try {
-      await kickPlayer({
-        data: {
-          lobbyId: lobby.id,
-          requesterId: myPlayerId,
-          targetPlayerId,
-        },
-      });
-    } catch (err: any) {
-      toast.error(err.message ?? "Impossible d'expulser ce joueur");
-    } finally {
-      setKickLoading(false);
-    }
-  }, [lobby, myPlayerId]);
+  const handleKickPlayer = useCallback(
+    async (targetPlayerId: string) => {
+      if (!lobby || !myPlayerId) return;
+      setKickLoading(true);
+      try {
+        await kickPlayer({
+          data: {
+            lobbyId: lobby.id,
+            requesterId: myPlayerId,
+            targetPlayerId,
+          },
+        });
+      } catch (err: any) {
+        toast.error(err.message ?? "Impossible d'expulser ce joueur");
+      } finally {
+        setKickLoading(false);
+      }
+    },
+    [lobby, myPlayerId],
+  );
 
   const handleLeaveLobby = async () => {
     if (!lobby || !myPlayerId) return;
@@ -247,34 +267,40 @@ function LobbyPage() {
     }
   };
 
-  const handleTransferHost = useCallback(async (targetPlayerId: string) => {
-    if (!lobby || !myPlayerId) return;
-    setTransferLoading(true);
-    try {
-      await transferHost({
-        data: {
-          lobbyId: lobby.id,
-          requesterId: myPlayerId,
-          targetPlayerId,
-        },
-      });
-      toast.success("Hôte transféré avec succès");
-    } catch (err: any) {
-      toast.error(err.message ?? "Impossible de transférer l'hôte");
-    } finally {
-      setTransferLoading(false);
-    }
-  }, [lobby, myPlayerId]);
+  const handleTransferHost = useCallback(
+    async (targetPlayerId: string) => {
+      if (!lobby || !myPlayerId) return;
+      setTransferLoading(true);
+      try {
+        await transferHost({
+          data: {
+            lobbyId: lobby.id,
+            requesterId: myPlayerId,
+            targetPlayerId,
+          },
+        });
+        toast.success("Hôte transféré avec succès");
+      } catch (err: any) {
+        toast.error(err.message ?? "Impossible de transférer l'hôte");
+      } finally {
+        setTransferLoading(false);
+      }
+    },
+    [lobby, myPlayerId],
+  );
 
   if (isRevealRoute) {
     return <Outlet />;
   }
 
   return (
-    <main id="main-content" className="flex min-h-screen items-center justify-center px-4 py-8 md:px-8">
-      <div className="w-full max-w-lg lg:max-w-4xl space-y-6">
-        {/* Header: streamer toggle + leave */}
-        <div className="flex items-start justify-between">
+    <main
+      id="main-content"
+      className="flex min-h-dvh flex-col items-center px-4 py-6 sm:px-6 sm:py-8 md:justify-center"
+    >
+      <div className="w-full max-w-md space-y-5 sm:space-y-6">
+        {/* ───── Top bar: streamer toggle + leave ───── */}
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Switch
               id="streamer-mode"
@@ -284,42 +310,29 @@ function LobbyPage() {
             />
             <Label
               htmlFor="streamer-mode"
-              className="flex items-center gap-1.5 cursor-pointer text-xs font-medium text-muted-foreground select-none"
+              className="flex cursor-pointer items-center gap-1.5 text-[11px] font-medium text-muted-foreground select-none"
             >
-              <MonitorSmartphone className="h-3.5 w-3.5" aria-hidden="true" />
-              <span className="hidden sm:inline">Streamer</span>
+              <MonitorSmartphone
+                className="h-3.5 w-3.5"
+                aria-hidden="true"
+              />
+              <span className="hidden xs:inline">Streamer</span>
             </Label>
           </div>
           {mounted && myPlayerId && (
-            <Button
+            <button
               type="button"
-              variant="ghost"
-              size="sm"
-              className="text-muted-foreground hover:text-destructive"
               onClick={() => setLeaveOpen(true)}
+              className="lobby-leave-btn flex cursor-pointer items-center gap-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground transition-colors hover:text-destructive"
             >
-              <LogOut className="mr-1.5 h-3.5 w-3.5" />
+              <LogOut className="h-3 w-3" />
               Quitter
-            </Button>
+            </button>
           )}
         </div>
 
-        {/* Code display */}
-        <div ref={codeRef} className="flex flex-col items-center gap-5 opacity-0">
-
-          {/* Badge label */}
-          <div className="flex items-center gap-3">
-            <span className="h-px w-8 bg-linear-to-r from-transparent to-[#50C878]/30" />
-            <span
-              className="font-mono text-[9px] font-semibold uppercase tracking-[0.35em]"
-              style={{ color: "rgba(80,200,120,0.55)" }}
-            >
-              Accès lobby
-            </span>
-            <span className="h-px w-8 bg-linear-to-l from-transparent to-[#50C878]/30" />
-          </div>
-
-          {/* Code container */}
+        {/* ───── Hero: code display ───── */}
+        <div ref={heroRef} className="opacity-0">
           <OnboardingTooltip
             open={onboarding.isStepActive(0)}
             side="bottom"
@@ -330,63 +343,51 @@ function LobbyPage() {
             onNext={onboarding.nextStep}
             onDismiss={onboarding.dismiss}
           >
-            <div
-              className="relative overflow-hidden"
-              style={{
-                border: "1px solid rgba(80,200,120,0.2)",
-                background: "rgba(80,200,120,0.03)",
-                boxShadow: "0 0 0 1px rgba(0,0,0,0.5), inset 0 1px 0 rgba(80,200,120,0.06), 0 0 32px rgba(80,200,120,0.04)",
-              }}
-            >
-              {/* Corner accents */}
-              <span className="lobby-corner-pulse pointer-events-none absolute top-0 left-0 h-2 w-2 border-t border-l border-[#50C878]/60" aria-hidden />
-              <span className="lobby-corner-pulse pointer-events-none absolute top-0 right-0 h-2 w-2 border-t border-r border-[#50C878]/60" aria-hidden />
-              <span className="lobby-corner-pulse pointer-events-none absolute bottom-0 left-0 h-2 w-2 border-b border-l border-[#50C878]/60" aria-hidden />
-              <span className="lobby-corner-pulse pointer-events-none absolute bottom-0 right-0 h-2 w-2 border-b border-r border-[#50C878]/60" aria-hidden />
-
-              {/* Scan line */}
-              <span
-                className="lobby-scan-line pointer-events-none absolute left-0 right-0 h-px"
-                style={{ background: "linear-gradient(90deg, transparent, rgba(80,200,120,0.4), transparent)" }}
+            <div className="lobby-hero">
+              {/* Ambient glow behind the code */}
+              <div
+                className="pointer-events-none absolute inset-0"
+                style={{
+                  background:
+                    "radial-gradient(ellipse at center, rgba(80,200,120,0.06) 0%, transparent 70%)",
+                }}
                 aria-hidden
               />
 
-              {/* Inner content */}
-              <div className="flex items-center divide-x divide-[#50C878]/10">
-                {/* Code */}
-                <div className="px-8 py-5">
+              <div className="relative flex flex-col items-center gap-4 px-5 py-6 sm:py-8">
+                {/* Label */}
+                <div className="flex items-center gap-3">
+                  <span className="h-px w-6 bg-linear-to-r from-transparent to-emerald/30" />
+                  <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.4em] text-emerald/50">
+                    Code lobby
+                  </span>
+                  <span className="h-px w-6 bg-linear-to-l from-transparent to-emerald/30" />
+                </div>
+
+                {/* Code value */}
+                <div className="flex items-center gap-3">
                   <span
-                    className="font-mono text-4xl font-bold tracking-[0.5em] md:text-5xl transition-all duration-300 select-all"
-                    aria-label={streamer.isCodeHidden ? "Code masqué" : `Code : ${code}`}
+                    className="font-mono text-3xl font-bold tracking-[0.45em] sm:text-4xl md:text-5xl"
+                    aria-label={
+                      streamer.isCodeHidden
+                        ? "Code masqué"
+                        : `Code : ${code}`
+                    }
                   >
                     {streamer.isCodeHidden ? (
-                      <span className="text-muted-foreground/40 select-none blur-[3px]">
+                      <span className="select-none text-muted-foreground/30 blur-[3px]">
                         {maskCode(code)}
                       </span>
                     ) : (
-                      <span className="text-emerald-gradient">{code}</span>
+                      <span className="text-emerald-gradient select-all">
+                        {code}
+                      </span>
                     )}
                   </span>
-                </div>
 
-                {/* Action buttons column */}
-                <div className="flex flex-col divide-y divide-[#50C878]/10">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={copyCode}
-                    title="Copier le code"
-                    aria-label="Copier le code"
-                    className="h-10 w-11 rounded-none text-muted-foreground hover:text-[#50C878] hover:bg-[#50C878]/5 transition-colors"
-                  >
-                    <Copy className="h-3.5 w-3.5" />
-                  </Button>
                   {streamer.enabled && (
-                    <Button
+                    <button
                       type="button"
-                      variant="ghost"
-                      size="icon"
                       onClick={() => {
                         if (streamer.revealed) {
                           streamer.hideImmediately();
@@ -394,174 +395,221 @@ function LobbyPage() {
                           streamer.revealTemporarily(3000);
                         }
                       }}
-                      title={streamer.isCodeHidden ? "Révéler le code" : "Code visible"}
-                      aria-label={streamer.isCodeHidden ? "Révéler temporairement le code" : "Code actuellement visible"}
-                      className="h-10 w-11 rounded-none text-muted-foreground hover:text-[#50C878] hover:bg-[#50C878]/5 transition-colors"
+                      title={
+                        streamer.isCodeHidden
+                          ? "Révéler le code"
+                          : "Code visible"
+                      }
+                      aria-label={
+                        streamer.isCodeHidden
+                          ? "Révéler temporairement le code"
+                          : "Code actuellement visible"
+                      }
+                      className="cursor-pointer text-muted-foreground transition-colors hover:text-emerald"
                     >
                       {streamer.isCodeHidden ? (
-                        <EyeOff className="h-3.5 w-3.5" />
+                        <EyeOff className="h-4 w-4" />
                       ) : (
-                        <Eye className="h-3.5 w-3.5 text-[#50C878]" />
+                        <Eye className="h-4 w-4 text-emerald" />
                       )}
-                    </Button>
+                    </button>
                   )}
+                </div>
+
+                {/* Action row */}
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={copyCode}
+                    className="lobby-action-btn"
+                    aria-label="Copier le code"
+                  >
+                    {copied ? (
+                      <Check className="h-3.5 w-3.5 text-emerald" />
+                    ) : (
+                      <Copy className="h-3.5 w-3.5" />
+                    )}
+                    <span>{copied ? "Copié" : "Copier"}</span>
+                  </button>
+
+                  <span className="mx-1 h-3 w-px bg-border/30" aria-hidden />
+
                   <LobbyShare
                     code={code}
                     streamerMode={streamer.isCodeHidden}
-                    buttonClassName="h-10 w-11 rounded-none text-muted-foreground hover:text-[#50C878] hover:bg-[#50C878]/5 transition-colors"
+                    buttonClassName="lobby-action-btn"
                   />
+                </div>
+
+                {/* Status pill */}
+                <div
+                  className="flex items-center gap-2 transition-all duration-500"
+                  role="status"
+                  aria-live="polite"
+                >
+                  <span
+                    className={
+                      copied
+                        ? "h-1.5 w-1.5 rounded-full bg-emerald"
+                        : "status-blink h-1.5 w-1.5 rounded-full bg-emerald/70"
+                    }
+                    aria-hidden="true"
+                  />
+                  <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.3em] text-emerald/50 transition-colors duration-500">
+                    {copied ? "Code copié" : "Connecté"}
+                  </span>
                 </div>
               </div>
             </div>
           </OnboardingTooltip>
-
-          {/* Status pill */}
-          <div
-            className="flex items-center gap-2.5 px-3 py-1.5 transition-all duration-500"
-            style={{
-              border: copied
-                ? "1px solid rgba(80,200,120,0.35)"
-                : "1px solid rgba(80,200,120,0.12)",
-              background: copied
-                ? "rgba(80,200,120,0.08)"
-                : "rgba(80,200,120,0.03)",
-            }}
-            role="status"
-            aria-live="polite"
-          >
-            <span
-              className={copied ? "h-1.5 w-1.5 bg-[#50C878]" : "h-1.5 w-1.5 bg-[#4aba6a] status-blink"}
-              aria-hidden="true"
-            />
-            <span
-              className="font-mono text-[10px] font-semibold uppercase tracking-[0.25em] transition-colors duration-500"
-              style={{ color: copied ? "#50C878" : "rgba(80,200,120,0.55)" }}
-            >
-              {copied ? "Code copié" : "Connecté"}
-            </span>
-          </div>
-
         </div>
 
-        {/* Two-column layout on large screens */}
-        <div className="lg:grid lg:grid-cols-[1fr_320px] lg:gap-6 space-y-6 lg:space-y-0">
-          {/* Left column: Players */}
-          <div className="space-y-6">
+        {/* ───── Settings panel ───── */}
+        {lobby && (
+          <div ref={settingsRef} className="opacity-0">
             <OnboardingTooltip
-              open={onboarding.isStepActive(1)}
-              side="top"
-              step={1}
+              open={onboarding.isStepActive(3)}
+              side="bottom"
+              step={3}
               totalSteps={onboarding.totalSteps}
-              title="Liste des joueurs"
-              description="Tous les joueurs connectés apparaissent ici. Attendez que tout le monde ait rejoint avant de lancer."
+              title="Configuration"
+              description="Choisissez combien d'imposteurs seront dans la partie. Plus il y en a, plus le danger est grand !"
               onNext={onboarding.nextStep}
               onDismiss={onboarding.dismiss}
             >
-              <Card ref={playersRef} className="opacity-0">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle className="flex items-center gap-2 text-base">
-                    <Users className="h-4 w-4 text-[#50C878]/60" aria-hidden="true" />
-                    Joueurs
-                  </CardTitle>
-                  <span ref={badgeRef} className="inline-block">
-                    <Badge variant="secondary">
-                      {storePlayers.length} joueur{storePlayers.length !== 1 ? "s" : ""}
-                    </Badge>
-                  </span>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  {storePlayers.length === 0 ? (
-                    <div className="flex items-center justify-center py-8 text-muted-foreground" role="status">
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
-                      En attente de joueurs...
-                    </div>
-                  ) : (
-                    storePlayers.map((player) => (
-                      <LobbyCard
-                        key={player.id}
-                        player={player}
-                        isMe={player.id === myPlayerId}
-                        showKick={!!isHost}
-                        onKick={handleKickPlayer}
-                        kickLoading={kickLoading}
-                        onTransferHost={isHost ? handleTransferHost : undefined}
-                        transferLoading={transferLoading}
-                      />
-                    ))
-                  )}
-
-                  {storePlayers.length > 0 && storePlayers.length < minPlayers && (
-                    <p className="pt-3 text-center text-xs font-medium text-muted-foreground">
-                      Il faut au moins {minPlayers} joueurs pour commencer (
-                      {storePlayers.length}/{minPlayers})
-                    </p>
-                  )}
-                </CardContent>
-              </Card>
+              <LobbySettings
+                impostorCount={impostorCount}
+                activePlayerCount={storePlayers.length}
+                isHost={!!isHost}
+                updating={settingsUpdating}
+                onImpostorCountChange={handleImpostorCountChange}
+              />
             </OnboardingTooltip>
-
-            {/* Host actions - below players on mobile, below players on desktop */}
-            {isHost && (
-              <OnboardingTooltip
-                open={onboarding.isStepActive(2)}
-                side="top"
-                step={2}
-                totalSteps={onboarding.totalSteps}
-                title="Lancer la partie"
-                description="Quand tous les joueurs sont prêts, lancez l'attribution des rôles pour commencer."
-                onNext={onboarding.nextStep}
-                onDismiss={onboarding.dismiss}
-              >
-                <Button
-                  onClick={handleAssignRoles}
-                  disabled={!canAssignRoles}
-                  className="w-full"
-                  size="lg"
-                >
-                  {assigning
-                    ? "Attribution en cours..."
-                    : storePlayers.length < minPlayers
-                      ? `En attente de joueurs (${storePlayers.length}/${minPlayers} min.)`
-                      : "Lancer l'attribution des rôles"}
-                </Button>
-              </OnboardingTooltip>
-            )}
-
-            {!isHost && mounted && myPlayerId && (
-              <Alert>
-                <AlertDescription className="text-center font-display italic">
-                  En attente que l&apos;hôte lance la partie...
-                </AlertDescription>
-              </Alert>
-            )}
           </div>
+        )}
 
-          {/* Right column: Settings (on lg: sticky sidebar) */}
-          {lobby && (
-            <div ref={settingsRef} className="opacity-0 lg:sticky lg:top-8 lg:self-start order-first lg:order-last">
-              <OnboardingTooltip
-                open={onboarding.isStepActive(3)}
-                side="bottom"
-                step={3}
-                totalSteps={onboarding.totalSteps}
-                title="Configuration"
-                description="Choisissez combien d'imposteurs seront dans la partie. Plus il y en a, plus le danger est grand !"
-                onNext={onboarding.nextStep}
-                onDismiss={onboarding.dismiss}
+        {/* ───── Players section ───── */}
+        <div ref={playersRef} className="space-y-3 opacity-0">
+          <OnboardingTooltip
+            open={onboarding.isStepActive(1)}
+            side="top"
+            step={1}
+            totalSteps={onboarding.totalSteps}
+            title="Liste des joueurs"
+            description="Tous les joueurs connectés apparaissent ici. Attendez que tout le monde ait rejoint avant de lancer."
+            onNext={onboarding.nextStep}
+            onDismiss={onboarding.dismiss}
+          >
+            <div className="lobby-section">
+              {/* Section header */}
+              <div className="flex items-center justify-between px-4 pt-4 pb-3 sm:px-5">
+                <div className="flex items-center gap-2">
+                  <Users
+                    className="h-3.5 w-3.5 text-emerald/50"
+                    aria-hidden="true"
+                  />
+                  <h2 className="font-heading text-xs font-bold uppercase tracking-[0.15em] text-foreground/80">
+                    Joueurs
+                  </h2>
+                </div>
+                <span ref={badgeRef} className="inline-block">
+                  <Badge variant="secondary" className="text-[10px]">
+                    {storePlayers.length} joueur
+                    {storePlayers.length !== 1 ? "s" : ""}
+                  </Badge>
+                </span>
+              </div>
+
+              {/* Player list */}
+              <div className="space-y-px px-2 pb-2 sm:px-3 sm:pb-3">
+                {storePlayers.length === 0 ? (
+                  <div
+                    className="flex items-center justify-center py-10 text-muted-foreground"
+                    role="status"
+                  >
+                    <Loader2
+                      className="mr-2 h-4 w-4 animate-spin"
+                      aria-hidden="true"
+                    />
+                    <span className="text-sm">En attente de joueurs...</span>
+                  </div>
+                ) : (
+                  storePlayers.map((player) => (
+                    <LobbyCard
+                      key={player.id}
+                      player={player}
+                      isMe={player.id === myPlayerId}
+                      showKick={!!isHost}
+                      onKick={handleKickPlayer}
+                      kickLoading={kickLoading}
+                      onTransferHost={
+                        isHost ? handleTransferHost : undefined
+                      }
+                      transferLoading={transferLoading}
+                    />
+                  ))
+                )}
+              </div>
+
+              {/* Min players notice */}
+              {storePlayers.length > 0 &&
+                storePlayers.length < minPlayers && (
+                  <div className="border-t border-border/20 px-4 py-3 sm:px-5">
+                    <p className="text-center font-mono text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                      {minPlayers - storePlayers.length}{"\u00a0"}joueur{minPlayers - storePlayers.length > 1 ? "s" : ""}{" "}manquant{minPlayers - storePlayers.length > 1 ? "s" : ""} ({storePlayers.length}/{minPlayers})
+                    </p>
+                  </div>
+                )}
+            </div>
+          </OnboardingTooltip>
+
+          {/* ───── CTA: assign roles / waiting ───── */}
+          {isHost && (
+            <OnboardingTooltip
+              open={onboarding.isStepActive(2)}
+              side="top"
+              step={2}
+              totalSteps={onboarding.totalSteps}
+              title="Lancer la partie"
+              description="Quand tous les joueurs sont prêts, lancez l'attribution des rôles pour commencer."
+              onNext={onboarding.nextStep}
+              onDismiss={onboarding.dismiss}
+            >
+              <Button
+                onClick={handleAssignRoles}
+                disabled={!canAssignRoles}
+                className="lobby-cta w-full"
+                size="lg"
               >
-                <LobbySettings
-                  impostorCount={impostorCount}
-                  activePlayerCount={storePlayers.length}
-                  isHost={!!isHost}
-                  updating={settingsUpdating}
-                  onImpostorCountChange={handleImpostorCountChange}
-                />
-              </OnboardingTooltip>
+                {assigning ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Attribution en cours...
+                  </>
+                ) : storePlayers.length < minPlayers ? (
+                  `En attente (${storePlayers.length}/${minPlayers} min.)`
+                ) : (
+                  <>
+                    <Swords className="h-4 w-4" />
+                    Lancer la partie
+                  </>
+                )}
+              </Button>
+            </OnboardingTooltip>
+          )}
+
+          {!isHost && mounted && myPlayerId && (
+            <div className="lobby-waiting-notice">
+              <div className="status-blink h-1.5 w-1.5 rounded-full bg-emerald/60" />
+              <span className="font-display text-sm italic text-foreground/70">
+                En attente que l&apos;hôte lance la partie...
+              </span>
             </div>
           )}
         </div>
       </div>
 
+      {/* ───── Leave dialog ───── */}
       <AlertDialog open={leaveOpen} onOpenChange={setLeaveOpen}>
         <AlertDialogContent className="max-w-sm">
           <AlertDialogHeader>
